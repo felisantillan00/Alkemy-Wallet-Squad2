@@ -24,9 +24,23 @@ class Account extends Model
         return $this->belongsTo(User::class);
     }
 
-    #RELACION CON MOVEMENT
+      #RELACION CON MOVEMENT
     public function movements()
     {
         return $this->hasMany(Movement::class);
+    }
+
+    # GENERA UN CBU DE 22 DIGITOS QUE NO EXISTA EN LA BASE
+    public static function generarCbuUnico(): string
+    {
+        do {
+            $cbu = '';
+
+            for ($i = 0; $i < 22; $i++) {
+                $cbu .= random_int(0, 9);
+            }
+        } while (self::where('cbu', $cbu)->exists());
+
+        return $cbu;
     }
 }
