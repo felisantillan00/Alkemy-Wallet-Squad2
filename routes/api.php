@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\DepositController;
+use App\Http\Controllers\Api\V1\TransferController;
 
 
 Route::prefix('v1')->group(function () {
@@ -34,5 +35,10 @@ Route::prefix('v1')->group(function () {
     // ---------- Depósitos ----------
     Route::middleware('auth:api')->group(function () {
         Route::post('/deposits', [DepositController::class, 'store']);
+    });
+
+    // ---------- Transferencias ----------
+    Route::middleware('auth:api')->group(function () {
+        Route::post('/transfers', [TransferController::class, 'store']);
     });
 });
