@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -21,5 +22,10 @@ Route::prefix('v1')->group(function () {
     // ---------- Perfil del usuario autenticado ----------
     Route::middleware('auth:api')->group(function () {
         Route::get('/profile', [ProfileController::class, 'show']);
+    });
+
+    // ---------- Cuenta del usuario autenticado ----------
+    Route::middleware('auth:api')->group(function(){
+        Route::get('/account', [AccountController::class, 'show']);
     });
 });
