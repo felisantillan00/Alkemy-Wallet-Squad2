@@ -24,6 +24,8 @@ Route::prefix('v1')->group(function () {
     // ---------- Perfil del usuario autenticado ----------
     Route::middleware('auth:api')->group(function () {
         Route::get('/profile', [ProfileController::class, 'show']);
+        Route::match(['put', 'patch'], '/profile', [ProfileController::class, 'update']);
+        Route::delete('/profile', [ProfileController::class, 'destroy']);
     });
 
     // ---------- Cuenta del usuario autenticado ----------
