@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\DepositController;
 use App\Http\Controllers\Api\V1\TransferController;
+use App\Http\Controllers\Api\V1\MovementController;
+use App\Http\Controllers\Api\V1\SavedAccountController;
 
 
 Route::prefix('v1')->group(function () {
@@ -40,5 +42,17 @@ Route::prefix('v1')->group(function () {
     // ---------- Transferencias ----------
     Route::middleware('auth:api')->group(function () {
         Route::post('/transfers', [TransferController::class, 'store']);
+    });
+
+    // ---------- Movimientos ----------
+    Route::middleware('auth:api')->group(function () {
+        Route::get('/movements', [MovementController::class, 'index']);
+    });
+
+    // ---------- CBUs de terceros guardados ----------
+    Route::middleware('auth:api')->group(function () {
+        Route::post('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'store']);
+        Route::get('/cbu/users/{idUser}', [SavedAccountController::class, 'index']);
+        Route::delete('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'destroy']);
     });
 });
