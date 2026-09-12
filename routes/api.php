@@ -52,5 +52,7 @@ Route::prefix('v1')->group(function () {
     // ---------- CBUs de terceros guardados ----------
     Route::middleware('auth:api')->group(function () {
         Route::post('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'store']);
+        Route::get('/cbu/users/{idUser}', [SavedAccountController::class, 'index']);
+        Route::delete('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'destroy']);
     });
 });
