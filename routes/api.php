@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AccountController;
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\AccountController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\DepositController;
+
 
 Route::prefix('v1')->group(function () {
 
@@ -27,5 +29,10 @@ Route::prefix('v1')->group(function () {
     // ---------- Cuenta del usuario autenticado ----------
     Route::middleware('auth:api')->group(function(){
         Route::get('/account', [AccountController::class, 'show']);
+    });
+
+    // ---------- Depósitos ----------
+    Route::middleware('auth:api')->group(function () {
+        Route::post('/deposits', [DepositController::class, 'store']);
     });
 });

@@ -21,6 +21,25 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Setup
+
+Pasos para levantar el proyecto localmente:
+
+```sh
+composer install
+
+cp .env.example .env
+php artisan key:generate
+php artisan jwt:secret
+
+php artisan migrate --seed
+php artisan test
+```
+
+- `key:generate` crea el `APP_KEY` de Laravel.
+- `jwt:secret` crea el `JWT_SECRET` que usa `php-open-source-saver/jwt-auth`; sin este paso, cualquier ruta protegida con `auth:api` responde `500` en vez de `401`/`200`.
+- Ambos comandos escriben directamente en tu `.env` local, que no se versiona — cada desarrollador debe correrlos una vez después de clonar.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
