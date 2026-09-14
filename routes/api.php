@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\V1\DepositController;
 use App\Http\Controllers\Api\V1\TransferController;
 use App\Http\Controllers\Api\V1\MovementController;
 use App\Http\Controllers\Api\V1\SavedAccountController;
-use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Api\V1\FixedTermInvestmentController;
 
 
 Route::prefix('v1')->group(function () {
@@ -62,5 +62,8 @@ Route::prefix('v1')->group(function () {
     // ---------- Administración (solo rol admin) ----------
     Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
         Route::get('/users', [AdminUserController::class, 'index']);
+    // ---------- Inversiones ----------
+    Route::middleware('auth:api')->group(function () {
+        Route::post('/investments/fixed-term/simulate', [FixedTermInvestmentController::class, 'simulate']);
     });
 });

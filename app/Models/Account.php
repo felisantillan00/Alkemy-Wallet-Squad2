@@ -16,6 +16,8 @@ class Account extends Model
     protected $fillable = [
         'user_id',
         'cbu',
+        'type',
+        'currency',
     ];
 
     # RELACION CON USUARIO

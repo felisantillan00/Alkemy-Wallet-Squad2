@@ -47,7 +47,7 @@ Eliminar el propio perfil hace un **soft delete** del usuario (`deleted_at`), no
 - El usuario deja de poder autenticarse (login) y de aparecer en cualquier consulta normal (el scope de `SoftDeletes` lo excluye automáticamente), pero la fila sigue en `users`.
 - La **cuenta** (`accounts`) no se toca: `accounts.user_id` sigue apuntando al mismo usuario, con su `balance` y `cbu` intactos. Como la fila de `users` no se borra de verdad, la FK `accounts.user_id → users.id` (`onDelete('set null')`) nunca se dispara.
 - Los **movimientos** (`movements`) tampoco se tocan: siguen asociados a la misma cuenta, sin pérdida de historial.
-- Los **CBUs de terceros guardados** (`saved_accounts`, WAL-010/011) no se tocan por la misma razón: al no borrarse la fila de `users`, ninguna FK sobre `user_id` se dispara. *(Nota: `saved_accounts` todavía no existe en esta rama — se agregó en WAL-010/011, pendientes de merge a `dev`. Cuando se integren, conviene revisar este comportamiento con la tabla ya presente.)*
+- Los **CBUs de terceros guardados** (`saved_accounts`, WAL-010/011) no se tocan por la misma razón: al no borrarse la fila de `users`, ninguna FK sobre `user_id` se dispara.
 
 Se eligió soft delete en vez de borrado físico porque es una wallet: borrar en duro al usuario arrastraría (vía `SET NULL`) una cuenta con saldo y movimientos a un estado huérfano e irreversible. Con soft delete, el dato queda íntegro y trazable, y es reversible si se decide restaurar al usuario.
 
@@ -56,6 +56,19 @@ Se eligió soft delete en vez de borrado físico porque es una wallet: borrar en
 - Los roles (`admin` y `user`) se crean con `RoleSeeder`. El registro público (`POST /api/v1/auth/register`) siempre asigna el rol `user` desde el servidor — el `RegisterRequest` ni siquiera acepta un campo de rol, así que cualquier `role`/`role_id` que mande el cliente se ignora.
 - `UserSeeder` crea un usuario de prueba (`testuser@example.test`) y un admin de prueba (`admin@example.test`). **La contraseña del admin no está hardcodeada en el código**: sale de `ADMIN_SEED_PASSWORD` (variable de entorno, no versionada) o, si no está definida, se genera al azar y se imprime una sola vez por consola al correr el seeder — nunca queda escrita en el repo.
 - El middleware `admin` (alias registrado en `bootstrap/app.php`, implementado en `App\Http\Middleware\EnsureUserIsAdmin`) protege las rutas bajo `/api/v1/admin/*`: exige `auth:api` primero (401 sin token) y luego que `role.role_name === 'admin'` (403 JSON en caso contrario). `GET /api/v1/admin/users` es la primera ruta administrativa, a modo de ejemplo.
+## Tipo de cuenta y moneda (`accounts.type`, `accounts.currency`)
+
+Cada cuenta tiene `type` (`savings` o `checking`, default `savings`) y `currency` (`ARS` o `USD`, default `ARS`). Las cuentas creadas antes de esta migración reciben esos valores por defecto automáticamente (columna con `DEFAULT` a nivel de base de datos), sin necesidad de un backfill manual.
+
+Los montos de depósitos, transferencias y movimientos pertenecen siempre a la moneda de la cuenta: **no se implementa conversión entre monedas**. Una transferencia mueve el mismo número nominal del origen al destino sin importar la moneda de cada cuenta — está fuera de alcance de esta issue resolver ese caso; si el producto necesita bloquear transferencias entre monedas distintas o convertir montos, es una decisión de negocio a definir en una issue aparte.
+
+## Simulación de plazo fijo (`POST /api/v1/investments/fixed-term/simulate`)
+
+Es una simulación puramente informativa: no descuenta saldo, no acredita nada y no crea ningún `Movement`. Parámetros en [`config/investments.php`](config/investments.php):
+
+- **Tasa**: TNA (Tasa Nominal Anual) fija del **30%** (`0.30`). No es configurable por el cliente — cualquier `tna` que venga en el body se ignora, siempre se usa la de config.
+- **Interés simple**, no capitaliza: `interés = monto × TNA × (días / 365)`.
+- **Plazo permitido**: de 30 a 365 días corridos. El cliente manda `term_days` (cantidad de días) **o** `end_date` (fecha de finalización) — nunca ambos —; si manda `end_date`, el plazo en días se calcula por diferencia contra la fecha de hoy y se valida contra el mismo rango.
 
 ## Learning Laravel
 
@@ -90,5 +103,4 @@ In order to ensure that the Laravel community is welcoming to all, please review
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
 ## License
-
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
