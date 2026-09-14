@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\DepositController;
 use App\Http\Controllers\Api\V1\TransferController;
 use App\Http\Controllers\Api\V1\MovementController;
 use App\Http\Controllers\Api\V1\SavedAccountController;
+use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
 
 
 Route::prefix('v1')->group(function () {
@@ -56,5 +57,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'store']);
         Route::get('/cbu/users/{idUser}', [SavedAccountController::class, 'index']);
         Route::delete('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'destroy']);
+    });
+
+    // ---------- Administración (solo rol admin) ----------
+    Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
+        Route::get('/users', [AdminUserController::class, 'index']);
     });
 });
