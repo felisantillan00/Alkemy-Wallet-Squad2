@@ -57,6 +57,14 @@ Cada cuenta tiene `type` (`savings` o `checking`, default `savings`) y `currency
 
 Los montos de depósitos, transferencias y movimientos pertenecen siempre a la moneda de la cuenta: **no se implementa conversión entre monedas**. Una transferencia mueve el mismo número nominal del origen al destino sin importar la moneda de cada cuenta — está fuera de alcance de esta issue resolver ese caso; si el producto necesita bloquear transferencias entre monedas distintas o convertir montos, es una decisión de negocio a definir en una issue aparte.
 
+## Simulación de plazo fijo (`POST /api/v1/investments/fixed-term/simulate`)
+
+Es una simulación puramente informativa: no descuenta saldo, no acredita nada y no crea ningún `Movement`. Parámetros en [`config/investments.php`](config/investments.php):
+
+- **Tasa**: TNA (Tasa Nominal Anual) fija del **30%** (`0.30`). No es configurable por el cliente — cualquier `tna` que venga en el body se ignora, siempre se usa la de config.
+- **Interés simple**, no capitaliza: `interés = monto × TNA × (días / 365)`.
+- **Plazo permitido**: de 30 a 365 días corridos. El cliente manda `term_days` (cantidad de días) **o** `end_date` (fecha de finalización) — nunca ambos —; si manda `end_date`, el plazo en días se calcula por diferencia contra la fecha de hoy y se valida contra el mismo rango.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
