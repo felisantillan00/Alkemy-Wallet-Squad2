@@ -37,13 +37,18 @@ return [
     |
     */
 
-    'guards' => [
+     'guards' => [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
         ],
-    ],
 
+        // Guard de la API: los tokens JWT se validan con este driver
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
+    ],
     /*
     |--------------------------------------------------------------------------
     | User Providers
