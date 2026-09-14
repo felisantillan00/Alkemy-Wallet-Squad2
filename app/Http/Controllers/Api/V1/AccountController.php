@@ -21,11 +21,13 @@ class AccountController extends Controller
         # Cargamos la relacion con account.
         $user->load('account');
 
-        # Devolvemos el cbu de la cuenta y su balance.
+        # Devolvemos el cbu, tipo, moneda y balance de la cuenta.
         return response()->json([
             'success' => true,
             'data' => [
                 'cbu' => $user->account->cbu,
+                'type' => $user->account->type,
+                'currency' => $user->account->currency,
                 'balance' => $user->account->balance,
             ],
         ], 200);

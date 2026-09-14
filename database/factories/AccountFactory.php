@@ -22,6 +22,8 @@ class AccountFactory extends Factory
             'user_id' => User::factory(),
             'cbu' => fake()->unique()->numerify(str_repeat('#', 22)),
             'balance' => 0.00,
+            'type' => 'savings',
+            'currency' => 'ARS',
         ];
     }
 }
