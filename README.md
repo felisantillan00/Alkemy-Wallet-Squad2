@@ -51,6 +51,11 @@ Eliminar el propio perfil hace un **soft delete** del usuario (`deleted_at`), no
 
 Se eligió soft delete en vez de borrado físico porque es una wallet: borrar en duro al usuario arrastraría (vía `SET NULL`) una cuenta con saldo y movimientos a un estado huérfano e irreversible. Con soft delete, el dato queda íntegro y trazable, y es reversible si se decide restaurar al usuario.
 
+## Roles y rutas administrativas
+
+- Los roles (`admin` y `user`) se crean con `RoleSeeder`. El registro público (`POST /api/v1/auth/register`) siempre asigna el rol `user` desde el servidor — el `RegisterRequest` ni siquiera acepta un campo de rol, así que cualquier `role`/`role_id` que mande el cliente se ignora.
+- `UserSeeder` crea un usuario de prueba (`testuser@example.test`) y un admin de prueba (`admin@example.test`). **La contraseña del admin no está hardcodeada en el código**: sale de `ADMIN_SEED_PASSWORD` (variable de entorno, no versionada) o, si no está definida, se genera al azar y se imprime una sola vez por consola al correr el seeder — nunca queda escrita en el repo.
+- El middleware `admin` (alias registrado en `bootstrap/app.php`, implementado en `App\Http\Middleware\EnsureUserIsAdmin`) protege las rutas bajo `/api/v1/admin/*`: exige `auth:api` primero (401 sin token) y luego que `role.role_name === 'admin'` (403 JSON en caso contrario). `GET /api/v1/admin/users` es la primera ruta administrativa, a modo de ejemplo.
 ## Tipo de cuenta y moneda (`accounts.type`, `accounts.currency`)
 
 Cada cuenta tiene `type` (`savings` o `checking`, default `savings`) y `currency` (`ARS` o `USD`, default `ARS`). Las cuentas creadas antes de esta migración reciben esos valores por defecto automáticamente (columna con `DEFAULT` a nivel de base de datos), sin necesidad de un backfill manual.
