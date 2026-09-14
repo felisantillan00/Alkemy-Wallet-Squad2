@@ -17,6 +17,7 @@ class Movement extends Model
         'account_id',
         'type',
         'amount',
+        'counterpart_cbu',
     ];
 
     # RELACION CON ACCOUNT 

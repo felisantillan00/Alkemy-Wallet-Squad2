@@ -56,4 +56,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Account::class);
     }
+
+    # CUENTAS DE TERCEROS GUARDADAS POR EL USUARIO
+    public function savedAccounts()
+    {
+        return $this->belongsToMany(Account::class, 'saved_accounts')->withTimestamps();
+    }
 }
