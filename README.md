@@ -40,6 +40,17 @@ php artisan test
 - `jwt:secret` crea el `JWT_SECRET` que usa `php-open-source-saver/jwt-auth`; sin este paso, cualquier ruta protegida con `auth:api` responde `500` en vez de `401`/`200`.
 - Ambos comandos escriben directamente en tu `.env` local, que no se versiona — cada desarrollador debe correrlos una vez después de clonar.
 
+## Eliminación de perfil (`DELETE /api/v1/profile`)
+
+Eliminar el propio perfil hace un **soft delete** del usuario (`deleted_at`), no un borrado físico:
+
+- El usuario deja de poder autenticarse (login) y de aparecer en cualquier consulta normal (el scope de `SoftDeletes` lo excluye automáticamente), pero la fila sigue en `users`.
+- La **cuenta** (`accounts`) no se toca: `accounts.user_id` sigue apuntando al mismo usuario, con su `balance` y `cbu` intactos. Como la fila de `users` no se borra de verdad, la FK `accounts.user_id → users.id` (`onDelete('set null')`) nunca se dispara.
+- Los **movimientos** (`movements`) tampoco se tocan: siguen asociados a la misma cuenta, sin pérdida de historial.
+- Los **CBUs de terceros guardados** (`saved_accounts`, WAL-010/011) no se tocan por la misma razón: al no borrarse la fila de `users`, ninguna FK sobre `user_id` se dispara. *(Nota: `saved_accounts` todavía no existe en esta rama — se agregó en WAL-010/011, pendientes de merge a `dev`. Cuando se integren, conviene revisar este comportamiento con la tabla ya presente.)*
+
+Se eligió soft delete en vez de borrado físico porque es una wallet: borrar en duro al usuario arrastraría (vía `SET NULL`) una cuenta con saldo y movimientos a un estado huérfano e irreversible. Con soft delete, el dato queda íntegro y trazable, y es reversible si se decide restaurar al usuario.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
