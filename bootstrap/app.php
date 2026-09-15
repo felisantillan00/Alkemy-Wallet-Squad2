@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -29,6 +30,16 @@ return Application::configure(basePath: dirname(__DIR__))
                     'success' => false,
                     'message' => 'No autenticado. Falta el token o no es válido.',
                 ], 401);
+            }
+        });
+
+        // El 404 de la API mantiene el mismo formato que el resto de respuestas
+        $exceptions->render(function(NotFoundHttpException $e, Request $request){
+            if($request->is('api/*')){
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Recurso no encontrado.',
+                ], 404);
             }
         });
     })->create();
