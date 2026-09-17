@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\SavedAccountController;
 use App\Http\Controllers\Api\V1\FixedTermInvestmentController;
 use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\MovementController as AdminMovementController;
+use App\Http\Controllers\Api\V1\Admin\AccountController as AdminAccountController;
 
 
 Route::prefix('v1')->group(function () {
@@ -75,6 +76,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/movements/{id}', [AdminMovementController::class, 'show']);
         Route::put('/movements/{id}', [AdminMovementController::class, 'update']);
         Route::delete('/movements/{id}', [AdminMovementController::class, 'destroy']);
+        Route::apiResource('accounts', AdminAccountController::class)->except(['create', 'edit']);
     });
 
     // ---------- Inversiones ----------
