@@ -30,7 +30,7 @@ class MovementController extends Controller
         $datos = $request->validated();
 
         $perPage   = $datos['per_page'] ?? 15;
-        $sort      = $datos['sort'] ?? 'created_at';
+        $sort      = $datos['sort'] ?? 'id';
         $direction = $datos['order'] ?? 'desc';
 
         $query = Movement::with('account.user');

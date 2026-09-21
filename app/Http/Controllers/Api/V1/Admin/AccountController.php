@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AccountIndexRequest;
 use App\Http\Requests\Admin\AdminAccountStoreRequest;
 use App\Http\Requests\Admin\AdminAccountUpdateRequest;
 use App\Models\Account;
@@ -13,20 +14,29 @@ class AccountController extends Controller
 {
     # GET /api/v1/admin/accounts
     # Lista paginada de cuentas. Solo accesible para administradores (middleware "admin").
-    public function index(Request $request): JsonResponse
+    public function index(AccountIndexRequest $request): JsonResponse
     {
-        # Ordenamiento basico: whitelist de columnas permitidas para no exponer
-        # ordenamiento arbitrario sobre columnas no deseadas.
-        $ordenablesPermitidos = ['id', 'balance', 'created_at'];
-        $ordenarPor = in_array($request->query('sort_by'), $ordenablesPermitidos, true)
-            ? $request->query('sort_by')
-            : 'id';
-        $direccion = $request->query('sort_dir') === 'desc' ? 'desc' : 'asc';
+        // Validamos los datos
+        $datos = $request->validated();
 
-        $cuentas = Account::with('user')
-            ->orderBy($ordenarPor, $direccion)
-            ->paginate(15);
+        // Cantidad de items por pagina (por defecto: 15)
+        $perPage = $datos['per_page'] ?? 15;
 
+        // Dato con el cual ordenamos (por defecto: id)
+        $sort = $datos['sort'] ?? 'id';
+
+        // Orden que usamos para organizar los datos (por defecto: asc)
+        $direction = $datos['order'] ?? 'asc';
+
+        // Creamos la query
+        $query = Account::with('user');
+
+        // Buscamos las cuentas
+        $cuentas = $query->orderBy($sort, $direction)
+                        ->paginate($perPage)
+                        ->appends($request->query());
+
+        // Mostramos las cuentas y sus detalles.
         $cuentas->through(fn (Account $account) => [
             'id'       => $account->id,
             'cbu'      => $account->cbu,

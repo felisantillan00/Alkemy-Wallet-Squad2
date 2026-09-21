@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Http\Requests\Admin\UserIndexRequest;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -15,32 +16,34 @@ class UserController extends Controller
 {
     # GET /api/v1/admin/users
     # Lista paginada de usuarios. Solo accesible para administradores (middleware "admin").
-    public function index(): JsonResponse
+    public function index(UserIndexRequest $request): JsonResponse
     {
-        // Busca si viene el parametro sort, sino por defecto se busca por id.
-        $sort = request('sort', 'id');
+        // Validamos los datos enviados
+        $datos = $request->validated();
 
-        // Busca si viene la direccion, sino por defecto es ascendente.
-        $direction = request('direction', 'asc');
+        // Cantidad de items por pagina (por defecto: 15)
+        $perPage = $datos['per_page'] ?? 15;
 
-        // Campos que se permiten en el sort.
-        $sortableFields = ['id', 'name', 'email'];
+        // Dato con el cual ordenamos (por defecto: id)
+        $sort = $datos['sort'] ?? 'id';
 
-        // Si lo enviado en el sort no se encuentra en el sortableFilds por defecto buscamos por id.
-        if (!in_array($sort, $sortableFields)) {
-            $sort = 'id';
+        // Orden que usamos para organizar los datos (por defecto: asc)
+        $direction = $datos['order'] ?? 'asc';
+
+        // Creamos una query
+        $query = User::with('role');
+
+        // Filtro por rol
+        if(isset($datos['role_id'])){
+            $query->where('role_id', $datos['role_id']);
         }
-        
-        // Si lo enviado en el direction no es "asc" ni "desc" por defecto usamos "asc".
-        if (!in_array($direction, ['asc', 'desc'])) {
-            $direction = 'asc';
-        }
-        
-        // Buscamos los usuarios con el role ordenados por el sort y direction sumado a la paginacion.
-        $usuarios = User::with('role')
-            ->orderBy($sort, $direction)
-            ->paginate(15);
 
+        // Buscamos los usuarios
+        $usuarios = $query->orderBy($sort, $direction)
+                            ->paginate($perPage)
+                            ->appends($request->query());
+
+        // Formato
         $usuarios->through(fn (User $user) => [
             'id'    => $user->id,
             'name'  => $user->name,
