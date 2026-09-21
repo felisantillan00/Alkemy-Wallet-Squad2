@@ -10,7 +10,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     # POST /api/v1/auth/register
@@ -63,17 +64,36 @@ class AuthController extends Controller
     # Valida las credenciales y devuelve un JWT utilizable como Bearer Token
     public function login(LoginRequest $request): JsonResponse
     {
-        $credenciales = $request->validated();
+         $credenciales = $request->validated();
+
+        # Limitador por email normalizado + IP: maximo 5 intentos fallidos por minuto
+        $clave = 'login:' . Str::lower(trim($credenciales['email'])) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($clave, 5)) {
+            $segundos = RateLimiter::availableIn($clave);
+
+            return response()->json([
+                'success'     => false,
+                'message'     => "Demasiados intentos fallidos. Podés reintentar en {$segundos} segundos.",
+                'retry_after' => $segundos,
+            ], 429)->header('Retry-After', $segundos);
+        }
 
         # attempt() verifica el hash de la contraseña y emite el token
         $token = auth('api')->attempt($credenciales);
 
         if (! $token) {
+            # Solo los intentos fallidos suman al contador (ventana de 60 segundos)
+            RateLimiter::hit($clave, 60);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Las credenciales son incorrectas.',
             ], 401);
         }
+
+        # Login exitoso: se reinicia el contador
+        RateLimiter::clear($clave);
 
         $user = auth('api')->user();
 
