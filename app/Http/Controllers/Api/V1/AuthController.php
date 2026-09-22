@@ -17,6 +17,60 @@ class AuthController extends Controller
 {
     # POST /api/v1/auth/register
     # Registra un usuario y le crea su cuenta con CBU unico y saldo inicial 0.00
+    #[OA\Post(
+        path: '/api/v1/auth/register',
+        summary: 'Registrar usuario',
+        description: 'Crea un usuario con rol "user" y su cuenta con CBU único y saldo inicial 0.00. El rol lo asigna el servidor: cualquier campo de rol enviado se ignora.',
+        tags: ['Autenticación'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'email', 'password', 'password_confirmation'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Juan Pérez'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, description: 'Único en el sistema', example: 'juan@example.test'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, example: 'password123'),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', description: 'Debe coincidir con password', example: 'password123'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Usuario registrado correctamente',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Usuario registrado correctamente.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(
+                                    property: 'user',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'id', type: 'integer', example: 3),
+                                        new OA\Property(property: 'name', type: 'string', example: 'Juan Pérez'),
+                                        new OA\Property(property: 'email', type: 'string', example: 'juan@example.test'),
+                                    ]
+                                ),
+                                new OA\Property(
+                                    property: 'account',
+                                    type: 'object',
+                                    properties: [
+                                        new OA\Property(property: 'cbu', type: 'string', example: '0000003100000000000001'),
+                                        new OA\Property(property: 'balance', type: 'string', example: '0.00'),
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 422, description: 'Error de validación (campos faltantes, email duplicado, contraseña corta o sin confirmar)', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
+        ]
+    )]
     public function register(RegisterRequest $request): JsonResponse
     {
         $datos = $request->validated();
