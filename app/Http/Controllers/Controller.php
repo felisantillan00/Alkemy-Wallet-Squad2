@@ -112,6 +112,71 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+#[OA\Schema(
+    schema: 'AdminUser',
+    required: ['id', 'name', 'email', 'age', 'image', 'role'],
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', example: 2),
+        new OA\Property(property: 'name', type: 'string', example: 'TestUser'),
+        new OA\Property(property: 'email', type: 'string', format: 'email', example: 'testuser@example.test'),
+        new OA\Property(property: 'age', type: 'integer', nullable: true, example: 30),
+        new OA\Property(property: 'image', type: 'string', nullable: true, description: 'URL de la imagen del usuario', example: 'https://example.test/foto.jpg'),
+        new OA\Property(property: 'role', type: 'string', nullable: true, enum: ['admin', 'user'], example: 'user'),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'AdminMovement',
+    required: ['id', 'type', 'amount', 'date', 'counterpart_cbu', 'account'],
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', example: 12),
+        new OA\Property(property: 'type', type: 'string', enum: ['deposit', 'transfer_in', 'transfer_out'], example: 'deposit'),
+        new OA\Property(property: 'amount', type: 'string', description: 'Monto con dos decimales', example: '150.00'),
+        new OA\Property(property: 'date', type: 'string', format: 'date-time', example: '2026-09-22T17:09:35.000000Z'),
+        new OA\Property(property: 'counterpart_cbu', type: 'string', nullable: true, example: null),
+        new OA\Property(
+            property: 'account',
+            type: 'object',
+            properties: [
+                new OA\Property(property: 'id', type: 'integer', example: 1),
+                new OA\Property(property: 'cbu', type: 'string', example: '0000003100000000000001'),
+                new OA\Property(property: 'type', type: 'string', enum: ['savings', 'checking'], example: 'savings'),
+                new OA\Property(property: 'currency', type: 'string', enum: ['ARS', 'USD'], example: 'ARS'),
+                new OA\Property(
+                    property: 'user',
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'id', type: 'integer', nullable: true, example: 2),
+                        new OA\Property(property: 'name', type: 'string', nullable: true, example: 'TestUser'),
+                        new OA\Property(property: 'email', type: 'string', nullable: true, example: 'testuser@example.test'),
+                    ]
+                ),
+            ]
+        ),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'AdminAccount',
+    required: ['id', 'cbu', 'type', 'currency', 'balance', 'user'],
+    properties: [
+        new OA\Property(property: 'id', type: 'integer', example: 1),
+        new OA\Property(property: 'cbu', type: 'string', example: '0000003100000000000001'),
+        new OA\Property(property: 'type', type: 'string', enum: ['savings', 'checking'], example: 'savings'),
+        new OA\Property(property: 'currency', type: 'string', enum: ['ARS', 'USD'], example: 'ARS'),
+        new OA\Property(property: 'balance', type: 'number', format: 'float', example: 1550.5),
+        new OA\Property(
+            property: 'user',
+            type: 'object',
+            properties: [
+                new OA\Property(property: 'id', type: 'integer', nullable: true, example: 2),
+                new OA\Property(property: 'name', type: 'string', nullable: true, example: 'TestUser'),
+                new OA\Property(property: 'email', type: 'string', nullable: true, example: 'testuser@example.test'),
+            ]
+        ),
+    ],
+    type: 'object'
+)]
 abstract class Controller
 {
     //
