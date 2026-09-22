@@ -28,3 +28,4 @@ Thumbs.db
 
 .vs/
 composer.phar
+/storage/api-docs

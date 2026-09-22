@@ -9,12 +9,51 @@ use App\Models\Movement;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Attributes as OA;
 
 class TransferController extends Controller
 {
     # POST /api/v1/transfers
     # Transfiere dinero desde la cuenta autenticada hacia la cuenta de otro CBU.
     # Descuenta el origen, acredita el destino y crea un movimiento en cada cuenta.
+     #[OA\Post(
+        path: '/api/v1/transfers',
+        summary: 'Transferir dinero a otra cuenta',
+        description: 'Transfiere desde la cuenta del usuario autenticado hacia la cuenta del CBU indicado. Descuenta el origen, acredita el destino y crea un movimiento en cada cuenta ("transfer_out" y "transfer_in"). Es atómica: si algo falla, no cambia ningún saldo.',
+        tags: ['Transferencias'],
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['destination_cbu', 'amount'],
+                properties: [
+                    new OA\Property(property: 'destination_cbu', type: 'string', description: 'CBU de una cuenta existente, distinta de la propia', example: '0000003100000000000002'),
+                    new OA\Property(property: 'amount', type: 'number', format: 'float', minimum: 0.01, description: 'No puede superar el saldo disponible', example: 100.00),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Transferencia realizada correctamente',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'success', type: 'boolean', example: true),
+                        new OA\Property(property: 'message', type: 'string', example: 'Transferencia realizada correctamente.'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'balance', type: 'string', description: 'Saldo resultante de la cuenta de origen', example: '50.00'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'No autenticado', content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedError')),
+            new OA\Response(response: 422, description: 'Error de validación: CBU inexistente, CBU propio, monto inválido o saldo insuficiente', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
+        ]
+    )]
     public function store(TransferRequest $request): JsonResponse
     {
         $datos = $request->validated();
