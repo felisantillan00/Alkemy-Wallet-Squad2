@@ -13,18 +13,18 @@ use App\Http\Controllers\Api\V1\Admin\UserController;
 use App\Http\Controllers\Api\V1\Admin\MovementController as AdminMovementController;
 use App\Http\Controllers\Api\V1\Admin\AccountController as AdminAccountController;
 
-
 Route::prefix('v1')->group(function () {
 
     // ---------- Autenticación ----------
     Route::prefix('auth')->group(function () {
-                    // Rutas públicas
+        // Rutas públicas
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
 
-              // Rutas protegidas: requieren un JWT válido
+        // Rutas protegidas: requieren un JWT válido
         Route::middleware('auth:api')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
+            Route::get('/check', [AuthController::class, 'check']);
         });
     });
 
@@ -36,7 +36,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // ---------- Cuenta del usuario autenticado ----------
-    Route::middleware('auth:api')->group(function(){
+    Route::middleware('auth:api')->group(function () {
         Route::get('/account', [AccountController::class, 'show']);
     });
 
@@ -64,6 +64,10 @@ Route::prefix('v1')->group(function () {
 
     // ---------- Administración (solo rol admin) ----------
     Route::prefix('admin')->middleware(['auth:api', 'admin'])->group(function () {
+        Route::get('/check', function () {
+            return response()->json(['success' => true]);
+        });
+        
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}', [UserController::class, 'show']);
