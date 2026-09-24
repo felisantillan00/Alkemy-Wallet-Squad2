@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="api-base-url" content="http://127.0.0.1:8000/api/v1">
+    <title>Wallet</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div>
+            <span class="brand">Wallet</span>
+            <span class="subtitle">Cliente de la API</span>
+        </div>
+        <button id="logout-button" class="button button-secondary" type="button" hidden>Cerrar sesión</button>
+    </header>
+
+    <main class="container">
+        <div id="message" class="message" role="status" aria-live="polite" hidden></div>
+        <div id="loading" class="loading" role="status" aria-live="polite" hidden>Cargando…</div>
+
+        <section id="auth-view" class="auth-grid">
+            <article class="card">
+                <h1>Iniciar sesión</h1>
+                <p class="muted">Ingresá con un usuario registrado en la Wallet.</p>
+
+                <form id="login-form" class="form-stack">
+                    <label>
+                        Email
+                        <input name="email" type="email" autocomplete="username" required>
+                    </label>
+                    <label>
+                        Contraseña
+                        <input name="password" type="password" autocomplete="current-password" required>
+                    </label>
+                    <button class="button button-primary" type="submit">Ingresar</button>
+                </form>
+            </article>
+
+            <article class="card">
+                <h2>Crear una cuenta</h2>
+                <p class="muted">El registro crea automáticamente una cuenta Wallet vacía.</p>
+
+                <form id="register-form" class="form-stack">
+                    <label>
+                        Nombre
+                        <input name="name" type="text" maxlength="255" autocomplete="name" required>
+                    </label>
+                    <label>
+                        Email
+                        <input name="email" type="email" maxlength="255" autocomplete="email" required>
+                    </label>
+                    <label>
+                        Contraseña
+                        <input name="password" type="password" minlength="8" autocomplete="new-password" required>
+                    </label>
+                    <label>
+                        Repetir contraseña
+                        <input name="password_confirmation" type="password" minlength="8" autocomplete="new-password" required>
+                    </label>
+                    <button class="button button-primary" type="submit">Registrarme</button>
+                </form>
+            </article>
+        </section>
+
+        <section id="app-view" hidden>
+            <nav class="navigation" aria-label="Secciones de la Wallet">
+                <button class="nav-button active" type="button" data-section="summary-section">Resumen</button>
+                <button class="nav-button" type="button" data-section="operations-section">Operaciones</button>
+                <button class="nav-button" type="button" data-section="movements-section">Movimientos</button>
+                <button class="nav-button" type="button" data-section="recipients-section">Destinatarios</button>
+                <button class="nav-button" type="button" data-section="profile-section">Perfil</button>
+                <button class="nav-button" type="button" data-section="fixed-term-section">Plazo fijo</button>
+                <button id="admin-nav-button" class="nav-button" type="button" data-section="admin-section" hidden>Administración</button>
+            </nav>
+
+            <section id="summary-section" class="app-section active">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Resumen</p>
+                        <h1>Hola, <span id="summary-name">—</span></h1>
+                    </div>
+                    <button id="refresh-summary-button" class="button button-secondary" type="button">Actualizar</button>
+                </div>
+
+                <div class="summary-grid">
+                    <article class="card balance-card">
+                        <span class="label">Saldo disponible</span>
+                        <strong id="account-balance">—</strong>
+                        <span id="account-currency" class="muted">—</span>
+                    </article>
+                    <article class="card">
+                        <span class="label">CBU</span>
+                        <strong id="account-cbu" class="cbu">—</strong>
+                    </article>
+                    <article class="card">
+                        <span class="label">Tipo de cuenta</span>
+                        <strong id="account-type">—</strong>
+                    </article>
+                </div>
+            </section>
+
+            <section id="operations-section" class="app-section">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Operaciones</p>
+                        <h2>Mover dinero</h2>
+                    </div>
+                </div>
+
+                <div class="two-columns">
+                    <article class="card">
+                        <h3>Depositar</h3>
+                        <form id="deposit-form" class="form-stack">
+                            <label>
+                                Monto
+                                <input name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" required>
+                            </label>
+                            <button class="button button-primary" type="submit">Realizar depósito</button>
+                        </form>
+                    </article>
+
+                    <article class="card">
+                        <h3>Transferir</h3>
+                        <form id="transfer-form" class="form-stack">
+                            <label>
+                                CBU destino
+                                <input id="transfer-cbu" name="destination_cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required>
+                            </label>
+                            <label>
+                                Monto
+                                <input name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" required>
+                            </label>
+                            <button class="button button-primary" type="submit">Realizar transferencia</button>
+                        </form>
+                    </article>
+                </div>
+            </section>
+
+            <section id="movements-section" class="app-section">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Actividad</p>
+                        <h2>Movimientos</h2>
+                    </div>
+                    <button id="refresh-movements-button" class="button button-secondary" type="button">Actualizar</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>CBU contraparte</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movements-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <button id="previous-page-button" class="button button-secondary" type="button">Anterior</button>
+                    <span id="page-information">Página 1 de 1</span>
+                    <button id="next-page-button" class="button button-secondary" type="button">Siguiente</button>
+                </div>
+            </section>
+
+            <section id="recipients-section" class="app-section">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Destinatarios</p>
+                        <h2>CBU guardados</h2>
+                    </div>
+                </div>
+
+                <article class="card">
+                    <form id="recipient-form" class="inline-form">
+                        <label>
+                            Nuevo CBU
+                            <input name="cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required>
+                        </label>
+                        <button class="button button-primary" type="submit">Guardar CBU</button>
+                    </form>
+                </article>
+
+                <div id="recipients-list" class="list"></div>
+            </section>
+
+            <section id="profile-section" class="app-section">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Mi cuenta</p>
+                        <h2>Perfil</h2>
+                    </div>
+                </div>
+
+                <article class="card profile-card">
+                    <img id="profile-image" class="profile-image" alt="Imagen de perfil" hidden>
+                    <form id="profile-form" class="form-stack">
+                        <label>
+                            Nombre
+                            <input name="name" type="text" maxlength="255" required>
+                        </label>
+                        <label>
+                            Email
+                            <input name="email" type="email" maxlength="255" required>
+                        </label>
+                        <label>
+                            Edad
+                            <input name="age" type="number" min="1" max="120">
+                        </label>
+                        <label>
+                            Imagen de perfil
+                            <input name="image" type="file" accept="image/jpeg,image/png,image/webp">
+                        </label>
+                        <small class="muted">Formatos permitidos: JPG, PNG y WebP. Tamaño máximo: 2 MB.</small>
+                        <button class="button button-primary" type="submit">Guardar cambios</button>
+                    </form>
+                </article>
+            </section>
+
+            <section id="fixed-term-section" class="app-section">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Simulación</p>
+                        <h2>Plazo fijo</h2>
+                    </div>
+                </div>
+
+                <div class="notice">
+                    Esta herramienta sólo realiza una simulación. No descuenta dinero ni crea una inversión.
+                </div>
+
+                <article class="card narrow-card">
+                    <form id="fixed-term-form" class="form-stack">
+                        <label>
+                            Monto
+                            <input name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" required>
+                        </label>
+                        <label>
+                            Cantidad de días
+                            <input name="term_days" type="number" min="30" max="365" required>
+                        </label>
+                        <button class="button button-primary" type="submit">Simular</button>
+                    </form>
+                </article>
+
+                <dl id="fixed-term-result" class="result-grid" hidden>
+                    <div><dt>Fecha de creación</dt><dd id="fixed-term-created-at">—</dd></div>
+                    <div><dt>Fecha de finalización</dt><dd id="fixed-term-ends-at">—</dd></div>
+                    <div><dt>Capital invertido</dt><dd id="fixed-term-invested">—</dd></div>
+                    <div><dt>Interés obtenido</dt><dd id="fixed-term-interest">—</dd></div>
+                    <div><dt>Total estimado</dt><dd id="fixed-term-total">—</dd></div>
+                </dl>
+            </section>
+
+            <section id="admin-section" class="app-section">
+                <div class="section-heading">
+                    <div><p class="eyebrow">Acceso restringido</p><h2>Administración</h2></div>
+                </div>
+
+                <nav class="admin-navigation" aria-label="Recursos administrativos">
+                    <button class="admin-tab active" type="button" data-admin-panel="admin-users-panel">Usuarios</button>
+                    <button class="admin-tab" type="button" data-admin-panel="admin-accounts-panel">Cuentas</button>
+                    <button class="admin-tab" type="button" data-admin-panel="admin-movements-panel">Movimientos</button>
+                </nav>
+
+                <section id="admin-users-panel" class="admin-panel active">
+                    <div class="section-heading"><h3>Usuarios</h3><button id="create-admin-user-button" class="button button-primary" type="button">Crear usuario</button></div>
+                    <div class="table-wrapper"><table>
+                        <thead><tr><th>ID</th><th>Nombre</th><th>Email</th><th>Edad</th><th>Rol</th><th>Acciones</th></tr></thead>
+                        <tbody id="admin-users-body"></tbody>
+                    </table></div>
+                    <div class="pagination">
+                        <button class="button button-secondary" type="button" data-admin-resource="users" data-page-direction="previous">Anterior</button>
+                        <span id="admin-users-page">Página 1 de 1 · 0 registros</span>
+                        <button class="button button-secondary" type="button" data-admin-resource="users" data-page-direction="next">Siguiente</button>
+                    </div>
+                </section>
+
+                <section id="admin-accounts-panel" class="admin-panel">
+                    <div class="section-heading"><h3>Cuentas</h3><button id="create-admin-account-button" class="button button-primary" type="button">Crear cuenta</button></div>
+                    <div class="notice">Modificar el saldo administrativamente no genera un movimiento automático.</div>
+                    <div class="table-wrapper"><table>
+                        <thead><tr><th>ID</th><th>Usuario</th><th>CBU</th><th>Tipo</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr></thead>
+                        <tbody id="admin-accounts-body"></tbody>
+                    </table></div>
+                    <div class="pagination">
+                        <button class="button button-secondary" type="button" data-admin-resource="accounts" data-page-direction="previous">Anterior</button>
+                        <span id="admin-accounts-page">Página 1 de 1 · 0 registros</span>
+                        <button class="button button-secondary" type="button" data-admin-resource="accounts" data-page-direction="next">Siguiente</button>
+                    </div>
+                </section>
+
+                <section id="admin-movements-panel" class="admin-panel">
+                    <div class="section-heading"><h3>Movimientos</h3><button id="create-admin-movement-button" class="button button-primary" type="button">Crear movimiento</button></div>
+                    <div class="notice">Crear, editar o eliminar movimientos administrativos no recalcula el saldo de ninguna cuenta.</div>
+                    <form id="admin-movement-filters" class="filter-form">
+                        <label>Cuenta ID<input name="account_id" type="number" min="1"></label>
+                        <label>Usuario ID<input name="user_id" type="number" min="1"></label>
+                        <button class="button button-secondary" type="submit">Aplicar filtros</button>
+                        <button id="clear-admin-movement-filters" class="button button-secondary" type="button">Limpiar</button>
+                    </form>
+                    <div class="table-wrapper"><table>
+                        <thead><tr><th>ID</th><th>Cuenta</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>CBU contraparte</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                        <tbody id="admin-movements-body"></tbody>
+                    </table></div>
+                    <div class="pagination">
+                        <button class="button button-secondary" type="button" data-admin-resource="movements" data-page-direction="previous">Anterior</button>
+                        <span id="admin-movements-page">Página 1 de 1 · 0 registros</span>
+                        <button class="button button-secondary" type="button" data-admin-resource="movements" data-page-direction="next">Siguiente</button>
+                    </div>
+                </section>
+            </section>
+        </section>
+    </main>
+
+    <dialog id="admin-user-dialog" class="dialog">
+        <form id="admin-user-form" class="form-stack">
+            <div class="dialog-heading"><h2 id="admin-user-dialog-title">Crear usuario</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button></div>
+            <label>Nombre<input name="name" type="text" maxlength="255" required></label>
+            <label>Email<input name="email" type="email" maxlength="255" required></label>
+            <label>Contraseña<input name="password" type="password" minlength="8" autocomplete="new-password" required></label>
+            <small id="admin-user-password-help" class="muted" hidden>Dejá la contraseña vacía para conservar la actual.</small>
+            <label>Edad<input name="age" type="number" min="1" max="120"></label>
+            <label>Rol<select name="role" required><option value="user">Usuario</option><option value="admin">Administrador</option></select></label>
+            <div class="dialog-actions"><button class="button button-secondary" type="button" data-close-dialog>Cancelar</button><button class="button button-primary" type="submit">Guardar</button></div>
+        </form>
+    </dialog>
+
+    <dialog id="admin-account-dialog" class="dialog">
+        <form id="admin-account-form" class="form-stack">
+            <div class="dialog-heading"><h2 id="admin-account-dialog-title">Crear cuenta</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button></div>
+            <label id="admin-account-user-field">Usuario ID<input name="user_id" type="number" min="1" required></label>
+            <label>CBU<input name="cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required></label>
+            <label>Tipo<select name="type" required><option value="savings">Caja de ahorro</option><option value="checking">Cuenta corriente</option></select></label>
+            <label>Moneda<select name="currency" required><option value="ARS">ARS</option><option value="USD">USD</option></select></label>
+            <label>Saldo<input name="balance" type="number" min="0" step="0.01" required></label>
+            <p class="notice compact-notice">Cambiar este saldo no crea un movimiento.</p>
+            <div class="dialog-actions"><button class="button button-secondary" type="button" data-close-dialog>Cancelar</button><button class="button button-primary" type="submit">Guardar</button></div>
+        </form>
+    </dialog>
+
+    <dialog id="admin-movement-dialog" class="dialog">
+        <form id="admin-movement-form" class="form-stack">
+            <div class="dialog-heading"><h2 id="admin-movement-dialog-title">Crear movimiento</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button></div>
+            <label>Cuenta ID<input name="account_id" type="number" min="1" required></label>
+            <label>Tipo<select name="type" required><option value="deposit">Depósito</option><option value="transfer_out">Transferencia enviada</option><option value="transfer_in">Transferencia recibida</option></select></label>
+            <label>Monto<input name="amount" type="number" min="0.01" step="0.01" required></label>
+            <label>CBU contraparte<input name="counterparty_cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22"></label>
+            <p class="notice compact-notice">Esta operación no recalcula el saldo de la cuenta.</p>
+            <div class="dialog-actions"><button class="button button-secondary" type="button" data-close-dialog>Cancelar</button><button class="button button-primary" type="submit">Guardar</button></div>
+        </form>
+    </dialog>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
