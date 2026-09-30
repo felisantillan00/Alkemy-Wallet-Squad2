@@ -235,7 +235,7 @@ function renderMovements(response) {
             appendCell(row, movementTypeLabel(movement.type));
             appendCell(row, formatMoney(movement.amount, state.account?.currency));
             appendCell(row, formatDate(movement.date));
-            appendCell(row, movement.counterparty_cvu || '—');
+            appendCell(row, movement.counterpart_cvu || '—');
             elements.movementsBody.append(row);
         });
     }
@@ -447,7 +447,7 @@ function renderAdminMovements(response) {
         appendCell(row, movement.account?.user_id ? `#${movement.account.user_id}` : '—');
         appendCell(row, movementTypeLabel(movement.type));
         appendCell(row, formatMoney(movement.amount, movement.account?.currency || 'ARS'));
-        appendCell(row, movement.counterparty_cvu || '—');
+        appendCell(row, movement.counterpart_cvu || '—');
         appendCell(row, formatDate(movement.created_at));
         appendActionsCell(row, 'movements', movement.id);
         elements.adminMovementsBody.append(row);
@@ -557,7 +557,7 @@ async function openEditAccountDialog(accountId) {
 
 function updateCounterpartyRequirement() {
     const type = elements.adminMovementForm.elements.type.value;
-    elements.adminMovementForm.elements.counterparty_cvu.required = type === 'transfer_out' || type === 'transfer_in';
+    elements.adminMovementForm.elements.counterpart_cvu.required = type === 'transfer_out' || type === 'transfer_in';
 }
 
 function openCreateMovementDialog() {
@@ -576,7 +576,7 @@ async function openEditMovementDialog(movementId) {
     elements.adminMovementForm.elements.account_id.value = movement.account_id;
     elements.adminMovementForm.elements.type.value = movement.type;
     elements.adminMovementForm.elements.amount.value = movement.amount;
-    elements.adminMovementForm.elements.counterparty_cvu.value = movement.counterparty_cvu ?? '';
+    elements.adminMovementForm.elements.counterpart_cvu.value = movement.counterpart_cvu ?? '';
     updateCounterpartyRequirement();
     document.querySelector('#admin-movement-dialog-title').textContent = `Editar movimiento #${movement.id}`;
     elements.adminMovementDialog.showModal();
@@ -595,7 +595,7 @@ function adminUserPayload(form) {
 
 function adminMovementPayload(form) {
     const fields = formValues(form);
-    fields.counterparty_cvu = fields.counterparty_cvu || null;
+    fields.counterpart_cvu = fields.counterpart_cvu || null;
 
     return fields;
 }
@@ -692,7 +692,7 @@ elements.transferForm.addEventListener('submit', async (event) => {
         const response = await withLoading(() => createTransfer(fields.destination_cvu, fields.amount));
         elements.transferForm.reset();
         await withLoading(() => Promise.all([loadSummary(), loadMovements(1)]));
-        showMessage(response.data.message);
+        showMessage(response.message || 'Transferencia realizada correctamente.');
     } catch (error) {
         showError(error);
     }
