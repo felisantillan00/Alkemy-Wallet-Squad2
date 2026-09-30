@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\ProfileImageController;
 use App\Http\Controllers\Api\V1\DepositController;
 use App\Http\Controllers\Api\V1\TransferController;
 use App\Http\Controllers\Api\V1\MovementController;
@@ -27,6 +28,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/check', [AuthController::class, 'check']);
         });
     });
+
+    // ---------- Fotos de perfil (pública: un <img> no envía el token) ----------
+    // Se sirven desde la API para no depender del enlace public/storage del servidor.
+    Route::get('/profile-images/{filename}', [ProfileImageController::class, 'show'])
+        ->where('filename', '[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp)');
 
     // ---------- Perfil del usuario autenticado ----------
     Route::middleware('auth:api')->group(function () {
@@ -71,14 +77,15 @@ Route::prefix('v1')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}', [UserController::class, 'show']);
-        Route::put('/users/{id}', [UserController::class, 'update']);
+        // El panel del frontend edita con PATCH; se acepta también PUT (Swagger)
+        Route::match(['put', 'patch'], '/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
         // CRUD de movimientos. Opera sobre el historial: no recalcula saldos.
         Route::get('/movements', [AdminMovementController::class, 'index']);
         Route::post('/movements', [AdminMovementController::class, 'store']);
         Route::get('/movements/{id}', [AdminMovementController::class, 'show']);
-        Route::put('/movements/{id}', [AdminMovementController::class, 'update']);
+        Route::match(['put', 'patch'], '/movements/{id}', [AdminMovementController::class, 'update']);
         Route::delete('/movements/{id}', [AdminMovementController::class, 'destroy']);
         Route::apiResource('accounts', AdminAccountController::class)->except(['create', 'edit']);
     });

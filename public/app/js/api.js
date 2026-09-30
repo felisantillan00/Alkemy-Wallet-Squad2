@@ -182,12 +182,21 @@ export function simulateFixedTerm(amount, termDays) {
     });
 }
 
-export function profileImageUrl(imagePath) {
-    if (!imagePath) {
+export function profileImageUrl(image) {
+    if (!image) {
         return null;
     }
-    const apiUrl = new URL(API_BASE_URL);
-    return `${apiUrl.origin}/storage/${String(imagePath).replace(/^\//, '')}`;
+
+    const value = String(image);
+
+    // La API ya devuelve la URL completa de la imagen: se usa tal cual.
+    if (/^https?:\/\//i.test(value)) {
+        return value;
+    }
+
+    // Ruta relativa (p. ej. "profile-images/abc.jpg"): se pide a la API, no a /storage,
+    // que no existe en hostings donde no se puede crear el enlace public/storage.
+    return `${API_BASE_URL}/profile-images/${value.split('/').pop()}`;
 }
 
 function adminListPath(resource, options) {
