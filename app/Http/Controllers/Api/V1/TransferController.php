@@ -14,20 +14,20 @@ use OpenApi\Attributes as OA;
 class TransferController extends Controller
 {
     # POST /api/v1/transfers
-    # Transfiere dinero desde la cuenta autenticada hacia la cuenta de otro CBU.
+    # Transfiere dinero desde la cuenta autenticada hacia la cuenta de otro CVU.
     # Descuenta el origen, acredita el destino y crea un movimiento en cada cuenta.
      #[OA\Post(
         path: '/api/v1/transfers',
         summary: 'Transferir dinero a otra cuenta',
-        description: 'Transfiere desde la cuenta del usuario autenticado hacia la cuenta del CBU indicado. Descuenta el origen, acredita el destino y crea un movimiento en cada cuenta ("transfer_out" y "transfer_in"). Es atómica: si algo falla, no cambia ningún saldo.',
+        description: 'Transfiere desde la cuenta del usuario autenticado hacia la cuenta del CVU indicado. Descuenta el origen, acredita el destino y crea un movimiento en cada cuenta ("transfer_out" y "transfer_in"). Es atómica: si algo falla, no cambia ningún saldo.',
         tags: ['Transferencias'],
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['destination_cbu', 'amount'],
+                required: ['destination_cvu', 'amount'],
                 properties: [
-                    new OA\Property(property: 'destination_cbu', type: 'string', description: 'CBU de una cuenta existente, distinta de la propia', example: '0000003100000000000002'),
+                    new OA\Property(property: 'destination_cvu', type: 'string', description: 'CVU de una cuenta existente, distinta de la propia', example: '0000003100000000000002'),
                     new OA\Property(property: 'amount', type: 'number', format: 'float', minimum: 0.01, description: 'No puede superar el saldo disponible', example: 100.00),
                 ]
             )
@@ -51,7 +51,7 @@ class TransferController extends Controller
                 )
             ),
             new OA\Response(response: 401, description: 'No autenticado', content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedError')),
-            new OA\Response(response: 422, description: 'Error de validación: CBU inexistente, CBU propio, monto inválido o saldo insuficiente', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
+            new OA\Response(response: 422, description: 'Error de validación: CVU inexistente, CVU propio, monto inválido o saldo insuficiente', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
         ]
     )]
     public function store(TransferRequest $request): JsonResponse
@@ -62,7 +62,7 @@ class TransferController extends Controller
         $user->load('account');
         $cuentaOrigen = $user->account;
 
-        $cuentaDestino = Account::where('cbu', $datos['destination_cbu'])->first();
+        $cuentaDestino = Account::where('cvu', $datos['destination_cvu'])->first();
 
         # Transaccion: o se mueven ambos saldos y se crean ambos movimientos, o no cambia nada
         $cuentaOrigen = DB::transaction(function () use ($cuentaOrigen, $cuentaDestino, $datos) {
@@ -84,14 +84,14 @@ class TransferController extends Controller
                 'account_id'      => $origen->id,
                 'type'            => 'transfer_out',
                 'amount'          => $datos['amount'],
-                'counterpart_cbu' => $destino->cbu,
+                'counterpart_cvu' => $destino->cvu,
             ]);
 
             Movement::create([
                 'account_id'      => $destino->id,
                 'type'            => 'transfer_in',
                 'amount'          => $datos['amount'],
-                'counterpart_cbu' => $origen->cbu,
+                'counterpart_cvu' => $origen->cvu,
             ]);
 
             return $origen->fresh();

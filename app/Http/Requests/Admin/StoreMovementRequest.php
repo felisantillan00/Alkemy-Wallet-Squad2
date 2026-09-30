@@ -12,14 +12,14 @@ class StoreMovementRequest extends FormRequest
         return true;
     }
 
-    # Validacion de cuenta, tipo, monto y CBU contraparte.
+    # Validacion de cuenta, tipo, monto y CVU contraparte.
     public function rules(): array
     {
         return [
             'account_id'      => ['required', 'integer', 'exists:accounts,id'],
             'type'            => ['required', 'string', 'in:deposit,transfer_out,transfer_in'],
             'amount'          => ['required', 'numeric', 'gt:0'],
-            'counterpart_cbu' => ['nullable', 'string', 'size:22', 'exists:accounts,cbu'],
+            'counterpart_cvu' => ['nullable', 'string', 'size:22', 'exists:accounts,cvu'],
         ];
     }
 
@@ -32,8 +32,8 @@ class StoreMovementRequest extends FormRequest
             'type.in'                 => 'El tipo debe ser deposit, transfer_out o transfer_in.',
             'amount.required'         => 'El monto es obligatorio.',
             'amount.gt'               => 'El monto debe ser mayor que 0.',
-            'counterpart_cbu.size'    => 'El CBU debe tener 22 dígitos.',
-            'counterpart_cbu.exists'  => 'El CBU indicado no corresponde a ninguna cuenta.',
+            'counterpart_cvu.size'    => 'El CVU debe tener 22 dígitos.',
+            'counterpart_cvu.exists'  => 'El CVU indicado no corresponde a ninguna cuenta.',
         ];
     }
 }

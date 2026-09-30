@@ -91,8 +91,8 @@
                         <span id="account-currency" class="muted">—</span>
                     </article>
                     <article class="card">
-                        <span class="label">CBU</span>
-                        <strong id="account-cbu" class="cbu">—</strong>
+                        <span class="label">CVU</span>
+                        <strong id="account-cvu" class="cvu">—</strong>
                     </article>
                     <article class="card">
                         <span class="label">Tipo de cuenta</span>
@@ -125,8 +125,8 @@
                         <h3>Transferir</h3>
                         <form id="transfer-form" class="form-stack">
                             <label>
-                                CBU destino
-                                <input id="transfer-cbu" name="destination_cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required>
+                                CVU destino
+                                <input id="transfer-cvu" name="destination_cvu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required>
                             </label>
                             <label>
                                 Monto
@@ -154,7 +154,7 @@
                                 <th>Tipo</th>
                                 <th>Monto</th>
                                 <th>Fecha</th>
-                                <th>CBU contraparte</th>
+                                <th>CVU contraparte</th>
                             </tr>
                         </thead>
                         <tbody id="movements-body"></tbody>
@@ -172,17 +172,17 @@
                 <div class="section-heading">
                     <div>
                         <p class="eyebrow">Destinatarios</p>
-                        <h2>CBU guardados</h2>
+                        <h2>CVU guardados</h2>
                     </div>
                 </div>
 
                 <article class="card">
                     <form id="recipient-form" class="inline-form">
                         <label>
-                            Nuevo CBU
-                            <input name="cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required>
+                            Nuevo CVU
+                            <input name="cvu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required>
                         </label>
-                        <button class="button button-primary" type="submit">Guardar CBU</button>
+                        <button class="button button-primary" type="submit">Guardar CVU</button>
                     </form>
                 </article>
 
@@ -285,7 +285,7 @@
                     <div class="section-heading"><h3>Cuentas</h3><button id="create-admin-account-button" class="button button-primary" type="button">Crear cuenta</button></div>
                     <div class="notice">Modificar el saldo administrativamente no genera un movimiento automático.</div>
                     <div class="table-wrapper"><table>
-                        <thead><tr><th>ID</th><th>Usuario</th><th>CBU</th><th>Tipo</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr></thead>
+                        <thead><tr><th>ID</th><th>Usuario</th><th>CVU</th><th>Tipo</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr></thead>
                         <tbody id="admin-accounts-body"></tbody>
                     </table></div>
                     <div class="pagination">
@@ -305,7 +305,7 @@
                         <button id="clear-admin-movement-filters" class="button button-secondary" type="button">Limpiar</button>
                     </form>
                     <div class="table-wrapper"><table>
-                        <thead><tr><th>ID</th><th>Cuenta</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>CBU contraparte</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                        <thead><tr><th>ID</th><th>Cuenta</th><th>Usuario</th><th>Tipo</th><th>Monto</th><th>CVU contraparte</th><th>Fecha</th><th>Acciones</th></tr></thead>
                         <tbody id="admin-movements-body"></tbody>
                     </table></div>
                     <div class="pagination">
@@ -335,7 +335,7 @@
         <form id="admin-account-form" class="form-stack">
             <div class="dialog-heading"><h2 id="admin-account-dialog-title">Crear cuenta</h2><button class="dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button></div>
             <label id="admin-account-user-field">Usuario ID<input name="user_id" type="number" min="1" required></label>
-            <label>CBU<input name="cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required></label>
+            <label>CVU<input name="cvu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22" required></label>
             <label>Tipo<select name="type" required><option value="savings">Caja de ahorro</option><option value="checking">Cuenta corriente</option></select></label>
             <label>Moneda<select name="currency" required><option value="ARS">ARS</option><option value="USD">USD</option></select></label>
             <label>Saldo<input name="balance" type="number" min="0" step="0.01" required></label>
@@ -350,7 +350,7 @@
             <label>Cuenta ID<input name="account_id" type="number" min="1" required></label>
             <label>Tipo<select name="type" required><option value="deposit">Depósito</option><option value="transfer_out">Transferencia enviada</option><option value="transfer_in">Transferencia recibida</option></select></label>
             <label>Monto<input name="amount" type="number" min="0.01" step="0.01" required></label>
-            <label>CBU contraparte<input name="counterparty_cbu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22"></label>
+            <label>CVU contraparte<input name="counterparty_cvu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22"></label>
             <p class="notice compact-notice">Esta operación no recalcula el saldo de la cuenta.</p>
             <div class="dialog-actions"><button class="button button-secondary" type="button" data-close-dialog>Cancelar</button><button class="button button-primary" type="submit">Guardar</button></div>
         </form>

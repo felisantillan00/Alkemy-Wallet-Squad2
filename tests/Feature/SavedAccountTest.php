@@ -32,19 +32,19 @@ class SavedAccountTest extends TestCase
         return [$user, $account, $token];
     }
 
-    # GUARDAR UN CBU DE TERCERO VALIDO PERSISTE LA RELACION Y DEVUELVE 201
-    public function test_guarda_un_cbu_de_tercero_valido(): void
+    # GUARDAR UN CVU DE TERCERO VALIDO PERSISTE LA RELACION Y DEVUELVE 201
+    public function test_guarda_un_cvu_de_tercero_valido(): void
     {
         [$user, , $token] = $this->crearUsuarioConCuenta();
         [, $tercero] = $this->crearUsuarioConCuenta();
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->postJson("/api/v1/cbu/{$tercero->cbu}/users/{$user->id}");
+            ->postJson("/api/v1/cvu/{$tercero->cvu}/users/{$user->id}");
 
         $response->assertStatus(201)
             ->assertJson([
                 'success' => true,
-                'data' => ['cbu' => $tercero->cbu],
+                'data' => ['cvu' => $tercero->cvu],
             ]);
 
         $this->assertDatabaseHas('saved_accounts', [
@@ -53,42 +53,42 @@ class SavedAccountTest extends TestCase
         ]);
     }
 
-    # NO SE PUEDE GUARDAR EL PROPIO CBU
-    public function test_no_permite_guardar_el_propio_cbu(): void
+    # NO SE PUEDE GUARDAR EL PROPIO CVU
+    public function test_no_permite_guardar_el_propio_cvu(): void
     {
         [$user, $cuenta, $token] = $this->crearUsuarioConCuenta();
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->postJson("/api/v1/cbu/{$cuenta->cbu}/users/{$user->id}");
+            ->postJson("/api/v1/cvu/{$cuenta->cvu}/users/{$user->id}");
 
         $response->assertStatus(422);
         $this->assertDatabaseMissing('saved_accounts', ['user_id' => $user->id]);
     }
 
-    # UN CBU INEXISTENTE DEVUELVE 422 Y NO MODIFICA LA LISTA
-    public function test_cbu_inexistente_devuelve_422(): void
+    # UN CVU INEXISTENTE DEVUELVE 422 Y NO MODIFICA LA LISTA
+    public function test_cvu_inexistente_devuelve_422(): void
     {
         [$user, , $token] = $this->crearUsuarioConCuenta();
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->postJson('/api/v1/cbu/0000000000000000000000/users/' . $user->id);
+            ->postJson('/api/v1/cvu/0000000000000000000000/users/' . $user->id);
 
         $response->assertStatus(422);
         $this->assertDatabaseMissing('saved_accounts', ['user_id' => $user->id]);
     }
 
-    # NO SE PUEDE DUPLICAR EL MISMO CBU PARA EL MISMO USUARIO
-    public function test_no_permite_duplicar_el_mismo_cbu(): void
+    # NO SE PUEDE DUPLICAR EL MISMO CVU PARA EL MISMO USUARIO
+    public function test_no_permite_duplicar_el_mismo_cvu(): void
     {
         [$user, , $token] = $this->crearUsuarioConCuenta();
         [, $tercero] = $this->crearUsuarioConCuenta();
 
         $this->withHeader('Authorization', "Bearer $token")
-            ->postJson("/api/v1/cbu/{$tercero->cbu}/users/{$user->id}")
+            ->postJson("/api/v1/cvu/{$tercero->cvu}/users/{$user->id}")
             ->assertStatus(201);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->postJson("/api/v1/cbu/{$tercero->cbu}/users/{$user->id}");
+            ->postJson("/api/v1/cvu/{$tercero->cvu}/users/{$user->id}");
 
         $response->assertStatus(422);
         $this->assertEquals(
@@ -105,7 +105,7 @@ class SavedAccountTest extends TestCase
         [, $tercero] = $this->crearUsuarioConCuenta();
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->postJson("/api/v1/cbu/{$tercero->cbu}/users/{$otroUsuario->id}");
+            ->postJson("/api/v1/cvu/{$tercero->cvu}/users/{$otroUsuario->id}");
 
         $response->assertStatus(403);
         $this->assertDatabaseMissing('saved_accounts', ['user_id' => $otroUsuario->id]);
@@ -117,13 +117,13 @@ class SavedAccountTest extends TestCase
         [$user] = $this->crearUsuarioConCuenta();
         [, $tercero] = $this->crearUsuarioConCuenta();
 
-        $response = $this->postJson("/api/v1/cbu/{$tercero->cbu}/users/{$user->id}");
+        $response = $this->postJson("/api/v1/cvu/{$tercero->cvu}/users/{$user->id}");
 
         $response->assertStatus(401);
     }
 
-    # LISTA SOLO LOS CBUs GUARDADOS POR EL USUARIO AUTENTICADO, CON CBU Y TITULAR
-    public function test_lista_los_cbus_guardados_por_el_usuario_autenticado(): void
+    # LISTA SOLO LOS CVUs GUARDADOS POR EL USUARIO AUTENTICADO, CON CVU Y TITULAR
+    public function test_lista_los_cvus_guardados_por_el_usuario_autenticado(): void
     {
         [$user, , $token] = $this->crearUsuarioConCuenta();
         [$terceroUser, $tercero] = $this->crearUsuarioConCuenta();
@@ -132,14 +132,14 @@ class SavedAccountTest extends TestCase
         $user->savedAccounts()->attach($tercero->id);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->getJson("/api/v1/cbu/users/{$user->id}");
+            ->getJson("/api/v1/cvu/users/{$user->id}");
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.cbu', $tercero->cbu)
+            ->assertJsonPath('data.0.cvu', $tercero->cvu)
             ->assertJsonPath('data.0.titular', $terceroUser->name);
 
-        $response->assertJsonMissing(['cbu' => $otroTercero->cbu]);
+        $response->assertJsonMissing(['cvu' => $otroTercero->cvu]);
     }
 
     # UN USUARIO NO PUEDE LISTAR LA LISTA DE OTRO USUARIO
@@ -149,7 +149,7 @@ class SavedAccountTest extends TestCase
         [$otroUsuario] = $this->crearUsuarioConCuenta();
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->getJson("/api/v1/cbu/users/{$otroUsuario->id}");
+            ->getJson("/api/v1/cvu/users/{$otroUsuario->id}");
 
         $response->assertStatus(403);
     }
@@ -159,13 +159,13 @@ class SavedAccountTest extends TestCase
     {
         [$user] = $this->crearUsuarioConCuenta();
 
-        $response = $this->getJson("/api/v1/cbu/users/{$user->id}");
+        $response = $this->getJson("/api/v1/cvu/users/{$user->id}");
 
         $response->assertStatus(401);
     }
 
-    # REMUEVE UN CBU GUARDADO SIN TOCAR LA CUENTA NI EL USUARIO TERCERO
-    public function test_remueve_un_cbu_guardado_sin_afectar_la_cuenta_tercera(): void
+    # REMUEVE UN CVU GUARDADO SIN TOCAR LA CUENTA NI EL USUARIO TERCERO
+    public function test_remueve_un_cvu_guardado_sin_afectar_la_cuenta_tercera(): void
     {
         [$user, , $token] = $this->crearUsuarioConCuenta();
         [$terceroUser, $tercero] = $this->crearUsuarioConCuenta();
@@ -173,7 +173,7 @@ class SavedAccountTest extends TestCase
         $user->savedAccounts()->attach($tercero->id);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->deleteJson("/api/v1/cbu/{$tercero->cbu}/users/{$user->id}");
+            ->deleteJson("/api/v1/cvu/{$tercero->cvu}/users/{$user->id}");
 
         $response->assertStatus(200)->assertJson(['success' => true]);
 
@@ -187,14 +187,14 @@ class SavedAccountTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $terceroUser->id]);
     }
 
-    # REMOVER UN CBU QUE NO ESTA GUARDADO DEVUELVE 404
-    public function test_remover_cbu_no_guardado_devuelve_404(): void
+    # REMOVER UN CVU QUE NO ESTA GUARDADO DEVUELVE 404
+    public function test_remover_cvu_no_guardado_devuelve_404(): void
     {
         [$user, , $token] = $this->crearUsuarioConCuenta();
         [, $tercero] = $this->crearUsuarioConCuenta();
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->deleteJson("/api/v1/cbu/{$tercero->cbu}/users/{$user->id}");
+            ->deleteJson("/api/v1/cvu/{$tercero->cvu}/users/{$user->id}");
 
         $response->assertStatus(404);
     }
@@ -209,7 +209,7 @@ class SavedAccountTest extends TestCase
         $otroUsuario->savedAccounts()->attach($tercero->id);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
-            ->deleteJson("/api/v1/cbu/{$tercero->cbu}/users/{$otroUsuario->id}");
+            ->deleteJson("/api/v1/cvu/{$tercero->cvu}/users/{$otroUsuario->id}");
 
         $response->assertStatus(403);
         $this->assertDatabaseHas('saved_accounts', [
@@ -224,7 +224,7 @@ class SavedAccountTest extends TestCase
         [$user] = $this->crearUsuarioConCuenta();
         [, $tercero] = $this->crearUsuarioConCuenta();
 
-        $response = $this->deleteJson("/api/v1/cbu/{$tercero->cbu}/users/{$user->id}");
+        $response = $this->deleteJson("/api/v1/cvu/{$tercero->cvu}/users/{$user->id}");
 
         $response->assertStatus(401);
     }

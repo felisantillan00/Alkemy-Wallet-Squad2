@@ -50,7 +50,7 @@ class MovementTest extends TestCase
         $response->assertJsonPath('data.0.amount', '50.00');
     }
 
-    # CADA ELEMENTO INCLUYE TIPO, MONTO, FECHA Y CBU CONTRAPARTE
+    # CADA ELEMENTO INCLUYE TIPO, MONTO, FECHA Y CVU CONTRAPARTE
     public function test_cada_elemento_incluye_los_campos_esperados(): void
     {
         [, $cuenta, $token] = $this->crearUsuarioConCuenta();
@@ -59,7 +59,7 @@ class MovementTest extends TestCase
         Movement::factory()->for($cuenta, 'account')->create([
             'type'            => 'transfer_out',
             'amount'          => 30,
-            'counterpart_cbu' => $destino->cbu,
+            'counterpart_cvu' => $destino->cvu,
         ]);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
@@ -68,8 +68,8 @@ class MovementTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.0.type', 'transfer_out')
             ->assertJsonPath('data.0.amount', '30.00')
-            ->assertJsonPath('data.0.counterpart_cbu', $destino->cbu)
-            ->assertJsonStructure(['data' => [['type', 'amount', 'date', 'counterpart_cbu']]]);
+            ->assertJsonPath('data.0.counterpart_cvu', $destino->cvu)
+            ->assertJsonStructure(['data' => [['type', 'amount', 'date', 'counterpart_cvu']]]);
     }
 
     # LAS OPERACIONES RECHAZADAS (422) NO DEJAN MOVIMIENTOS Y NO APARECEN EN EL LISTADO

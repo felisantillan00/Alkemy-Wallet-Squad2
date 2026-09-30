@@ -78,7 +78,7 @@ class AccountController extends Controller
         // Mostramos las cuentas y sus detalles.
         $cuentas->through(fn (Account $account) => [
             'id'       => $account->id,
-            'cbu'      => $account->cbu,
+            'cvu'      => $account->cvu,
             'type'     => $account->type,
             'currency' => $account->currency,
             'balance'  => $account->balance,
@@ -127,7 +127,7 @@ class AccountController extends Controller
             'success' => true,
             'data' => [
                 'id'       => $account->id,
-                'cbu'      => $account->cbu,
+                'cvu'      => $account->cvu,
                 'type'     => $account->type,
                 'currency' => $account->currency,
                 'balance'  => $account->balance,
@@ -142,11 +142,11 @@ class AccountController extends Controller
 
     # POST /api/v1/admin/accounts
     # Crea una cuenta para un usuario que todavia no tenga una.
-    # El CBU se genera automaticamente y el balance siempre arranca en 0.00.
+    # El CVU se genera automaticamente y el balance siempre arranca en 0.00.
         #[OA\Post(
         path: '/api/v1/admin/accounts',
         summary: 'Crear cuenta',
-        description: 'Crea una cuenta para un usuario que todavía no tenga una. El CBU se genera automáticamente y el saldo siempre arranca en 0: ni `cbu` ni `balance` se aceptan desde el cliente. Solo para administradores.',
+        description: 'Crea una cuenta para un usuario que todavía no tenga una. El CVU se genera automáticamente y el saldo siempre arranca en 0: ni `cvu` ni `balance` se aceptan desde el cliente. Solo para administradores.',
         tags: ['Admin: cuentas'],
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -182,7 +182,7 @@ class AccountController extends Controller
 
         $account = Account::create([
             'user_id'  => $datos['user_id'],
-            'cbu'      => Account::generarCbuUnico(),
+            'cvu'      => Account::generarCvuUnico(),
             'type'     => $datos['type'],
             'currency' => $datos['currency'],
             # balance no se asigna: usa el default de la migracion (0.00)
@@ -198,7 +198,7 @@ class AccountController extends Controller
             'success' => true,
             'data' => [
                 'id'       => $account->id,
-                'cbu'      => $account->cbu,
+                'cvu'      => $account->cvu,
                 'type'     => $account->type,
                 'currency' => $account->currency,
                 'balance'  => $account->balance,
@@ -212,11 +212,11 @@ class AccountController extends Controller
     }
 
     # PUT/PATCH /api/v1/admin/accounts/{account}
-    # Actualiza type y/o currency. No permite reasignar user_id ni tocar balance/cbu.
+    # Actualiza type y/o currency. No permite reasignar user_id ni tocar balance/cvu.
      #[OA\Put(
         path: '/api/v1/admin/accounts/{account}',
         summary: 'Actualizar una cuenta',
-        description: 'Actualiza el tipo y/o la moneda de una cuenta. No permite reasignar el titular (`user_id`) ni modificar `balance` o `cbu`. Solo para administradores.',
+        description: 'Actualiza el tipo y/o la moneda de una cuenta. No permite reasignar el titular (`user_id`) ni modificar `balance` o `cvu`. Solo para administradores.',
         tags: ['Admin: cuentas'],
         security: [['bearerAuth' => []]],
         parameters: [
@@ -295,7 +295,7 @@ class AccountController extends Controller
             'success' => true,
             'data' => [
                 'id'       => $account->id,
-                'cbu'      => $account->cbu,
+                'cvu'      => $account->cvu,
                 'type'     => $account->type,
                 'currency' => $account->currency,
                 'balance'  => $account->balance,

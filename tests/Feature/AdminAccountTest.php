@@ -61,7 +61,7 @@ class AdminAccountTest extends TestCase
             ->assertJsonStructure([
                 'current_page',
                 'data' => [
-                    '*' => ['id', 'cbu', 'type', 'currency', 'balance', 'user' => ['id', 'name', 'email']],
+                    '*' => ['id', 'cvu', 'type', 'currency', 'balance', 'user' => ['id', 'name', 'email']],
                 ],
                 'per_page',
                 'total',
@@ -107,7 +107,7 @@ class AdminAccountTest extends TestCase
                 'success' => true,
                 'data' => [
                     'id'       => $account->id,
-                    'cbu'      => $account->cbu,
+                    'cvu'      => $account->cvu,
                     'type'     => 'savings',
                     'currency' => 'ARS',
                     'balance'  => 250.50,
@@ -122,7 +122,7 @@ class AdminAccountTest extends TestCase
 
     # ---------- STORE ----------
 
-    # CREA UNA CUENTA PARA UN USUARIO QUE TODAVIA NO TIENE UNA, CON BALANCE 0.00 Y CBU GENERADO
+    # CREA UNA CUENTA PARA UN USUARIO QUE TODAVIA NO TIENE UNA, CON BALANCE 0.00 Y CVU GENERADO
     public function test_store_crea_una_cuenta_para_un_usuario_sin_cuenta(): void
     {
         $token = $this->tokenAdmin();

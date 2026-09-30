@@ -21,7 +21,7 @@ class AccountTest extends TestCase
         $this->seed(RoleSeeder::class);
     }
 
-    # LA CONSULTA DE CUENTA DEVUELVE CBU, TIPO, MONEDA Y BALANCE
+    # LA CONSULTA DE CUENTA DEVUELVE CVU, TIPO, MONEDA Y BALANCE
     public function test_la_consulta_de_cuenta_incluye_tipo_y_moneda(): void
     {
         $user = User::factory()->create();
@@ -40,7 +40,7 @@ class AccountTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'cbu'      => $account->cbu,
+                    'cvu'      => $account->cvu,
                     'type'     => 'checking',
                     'currency' => 'USD',
                     'balance'  => 100.00,
@@ -57,7 +57,7 @@ class AccountTest extends TestCase
         # Insert directo, sin pasar por la factory, simulando una fila "vieja" anterior a la migración
         $accountId = \DB::table('accounts')->insertGetId([
             'user_id'    => $user->id,
-            'cbu'        => Account::generarCbuUnico(),
+            'cvu'        => Account::generarCvuUnico(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

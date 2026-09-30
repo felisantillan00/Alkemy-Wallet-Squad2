@@ -1,6 +1,6 @@
 # Alkemy Wallet API — Squad 2
 
-API REST desarrollada en **Laravel** para la simulación de una billetera virtual: autenticación JWT, roles (usuario/administrador), cuentas, depósitos, transferencias, CBUs de terceros, movimientos paginados, simulación de plazo fijo y documentación interactiva con Swagger/OpenAPI.
+API REST desarrollada en **Laravel** para la simulación de una billetera virtual: autenticación JWT, roles (usuario/administrador), cuentas, depósitos, transferencias, CVUs de terceros, movimientos paginados, simulación de plazo fijo y documentación interactiva con Swagger/OpenAPI.
 
 ## Índice
 
@@ -98,10 +98,10 @@ Ahí se puede ver método, parámetros, cuerpo y respuesta de cada endpoint (inc
 | Usuario (`user`, `role_id` 2) | `testuser@example.test` | `password123` |
 | Administrador (`admin`, `role_id` 1) | `admin@example.test` | Definida en `ADMIN_SEED_PASSWORD` del `.env`. Si no está configurada, el seeder genera una al azar y la imprime **una sola vez** por consola al correr `php artisan db:seed` — nunca queda escrita en el repo. |
 
-Para consultar CBUs de las cuentas generadas por el seeding (útil para probar transferencias):
+Para consultar CVUs de las cuentas generadas por el seeding (útil para probar transferencias):
 
 ```sh
-php artisan tinker --execute="App\Models\Account::all(['user_id', 'cbu'])->each(function(\$a){ echo \$a->user_id . ' -> ' . \$a->cbu . PHP_EOL; });"
+php artisan tinker --execute="App\Models\Account::all(['user_id', 'cvu'])->each(function(\$a){ echo \$a->user_id . ' -> ' . \$a->cvu . PHP_EOL; });"
 ```
 
 ## Endpoints principales
@@ -112,7 +112,7 @@ Todas las rutas usan el prefijo `/api/v1`. Las marcadas 🔒 requieren `Authoriz
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/auth/register` | Registro público. Crea el usuario (rol `user`) y su cuenta con CBU único y saldo `0.00`. |
+| POST | `/auth/register` | Registro público. Crea el usuario (rol `user`) y su cuenta con CVU único y saldo `0.00`. |
 | POST | `/auth/login` | Devuelve el JWT a usar como Bearer Token. |
 | POST | `/auth/logout` 🔒 | Invalida la sesión/token actual. |
 | GET | `/auth/check` 🔒 | Verifica si el token enviado es válido. |
@@ -124,23 +124,23 @@ Todas las rutas usan el prefijo `/api/v1`. Las marcadas 🔒 requieren `Authoriz
 | GET | `/profile` | Datos del usuario autenticado (sin contraseña). |
 | PUT/PATCH | `/profile` | Actualiza `name`, `email`, `age`, `image`. |
 | DELETE | `/profile` | Elimina (soft delete) el usuario autenticado — ver [Reglas de negocio](#reglas-de-negocio-destacadas). |
-| GET | `/account` | CBU y saldo de la cuenta propia. |
+| GET | `/account` | CVU y saldo de la cuenta propia. |
 
 ### Operaciones de la wallet 🔒
 
 | Método | Ruta | Descripción |
 |---|---|---|
 | POST | `/deposits` | Deposita en la cuenta propia. Crea un movimiento `deposit`. |
-| POST | `/transfers` | Transfiere a un `destination_cbu`. Rechaza saldo insuficiente y CBU propio con `422`. Crea `transfer_out`/`transfer_in` dentro de una transacción atómica. |
+| POST | `/transfers` | Transfiere a un `destination_cvu`. Rechaza saldo insuficiente y CVU propio con `422`. Crea `transfer_out`/`transfer_in` dentro de una transacción atómica. |
 | GET | `/movements` | Historial paginado de la cuenta propia. Parámetros: `page`, `per_page` (1–100, default 15), `order` (`asc`\|`desc`, default `desc`). Siempre ordena por fecha (`created_at`); no admite elegir otro campo. |
 
-### CBUs de terceros guardados 🔒
+### CVUs de terceros guardados 🔒
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/cbu/{cbu}/users/{idUser}` | Guarda un CBU de tercero para el usuario autenticado. |
-| GET | `/cbu/users/{idUser}` | Lista los CBUs guardados por el usuario autenticado. |
-| DELETE | `/cbu/{cbu}/users/{idUser}` | Quita un CBU guardado (no borra la cuenta ni al tercero). |
+| POST | `/cvu/{cvu}/users/{idUser}` | Guarda un CVU de tercero para el usuario autenticado. |
+| GET | `/cvu/users/{idUser}` | Lista los CVUs guardados por el usuario autenticado. |
+| DELETE | `/cvu/{cvu}/users/{idUser}` | Quita un CVU guardado (no borra la cuenta ni al tercero). |
 
 ### Inversiones 🔒
 
@@ -164,7 +164,7 @@ Todas las rutas usan el prefijo `/api/v1`. Las marcadas 🔒 requieren `Authoriz
 | PUT/PATCH | `/admin/accounts/{account}` | Edita `type`/`currency`/`balance`. Nunca reasigna `user_id`. |
 | DELETE | `/admin/accounts/{account}` | Elimina una cuenta. |
 | GET | `/admin/movements` | Listado paginado. Filtros: `page`, `per_page` (1–100, default 15), `sort` (`id`\|`created_at`\|`amount`\|`type`, default `id`), `order` (`asc`\|`desc`, default `desc`), `account_id`, `user_id` (resuelto vía la cuenta), `type`. |
-| POST | `/admin/movements` | Crea un movimiento manual (`account_id`, `type`, `amount`, `counterpart_cbu` opcional). **No modifica el saldo de la cuenta.** |
+| POST | `/admin/movements` | Crea un movimiento manual (`account_id`, `type`, `amount`, `counterpart_cvu` opcional). **No modifica el saldo de la cuenta.** |
 | GET | `/admin/movements/{id}` | Detalle de un movimiento, con su cuenta, moneda y usuario asociado. |
 | PUT | `/admin/movements/{id}` | Actualización parcial de un movimiento. **No recalcula el saldo de la cuenta.** |
 | DELETE | `/admin/movements/{id}` | Elimina un movimiento. **No devuelve el importe al saldo.** |
@@ -173,12 +173,16 @@ Un usuario con rol `user` que intenta acceder a cualquier ruta `/admin/*` recibe
 
 ## Reglas de negocio destacadas
 
+### CVU, no CBU
+
+El identificador de cuenta se llama **CVU** (Clave Virtual Uniforme), no CBU (Clave Bancaria Uniforme): esta es una billetera virtual, no un banco, y CVU es el término correcto para ese tipo de cuenta. La columna `accounts.cbu` (y `movements.counterpart_cbu`) se renombró a `cvu`/`counterpart_cvu` mediante una migración nueva (`rename_cbu_to_cvu`) que no modifica las migraciones originales, ya aplicadas en otros entornos. Las rutas `/api/v1/cbu/...` pasaron a `/api/v1/cvu/...`, y los campos `destination_cbu`/`counterpart_cbu` a `destination_cvu`/`counterpart_cvu` en toda la API, el frontend y Swagger.
+
 ### Eliminación de usuarios: siempre soft delete
 
 Tanto `DELETE /api/v1/profile` (autoeliminación) como `DELETE /api/v1/admin/users/{id}` (baja por un administrador) hacen un **soft delete** (`deleted_at`), no un borrado físico:
 
 - El usuario deja de poder loguearse y de aparecer en consultas normales, pero la fila sigue en `users`.
-- La cuenta, sus movimientos y los CBUs guardados **no se tocan**: como `users` no se borra de verdad, ninguna FK con `onDelete('set null')` se dispara.
+- La cuenta, sus movimientos y los CVUs guardados **no se tocan**: como `users` no se borra de verdad, ninguna FK con `onDelete('set null')` se dispara.
 - Se eligió soft delete porque un borrado físico arrastraría, vía `SET NULL`, una cuenta con saldo real a un estado huérfano e irreversible.
 
 ### El CRUD administrativo de movimientos nunca toca el saldo
@@ -239,7 +243,7 @@ Para la demo final, usar al menos **dos usuarios** y **un administrador** (`test
 - [ ] Consulta de cuenta y saldo
 - [ ] Un depósito
 - [ ] Una transferencia entre los dos usuarios
-- [ ] Guardar y listar un CBU de tercero
+- [ ] Guardar y listar un CVU de tercero
 - [ ] Historial de movimientos paginado
 - [ ] Simulación de plazo fijo
 - [ ] Un error de validación (por ejemplo, `amount` negativo en `/deposits` → `422`)

@@ -185,7 +185,7 @@ function appendCell(row, value, className = '') {
 
 function renderSummary() {
     document.querySelector('#summary-name').textContent = state.user.name;
-    document.querySelector('#account-cbu').textContent = state.account.cbu;
+    document.querySelector('#account-cvu').textContent = state.account.cvu;
     document.querySelector('#account-type').textContent = accountTypeLabel(state.account.type);
     document.querySelector('#account-currency').textContent = state.account.currency;
     document.querySelector('#account-balance').textContent = formatMoney(
@@ -235,7 +235,7 @@ function renderMovements(response) {
             appendCell(row, movementTypeLabel(movement.type));
             appendCell(row, formatMoney(movement.amount, state.account?.currency));
             appendCell(row, formatDate(movement.date));
-            appendCell(row, movement.counterparty_cbu || '—');
+            appendCell(row, movement.counterparty_cvu || '—');
             elements.movementsBody.append(row);
         });
     }
@@ -262,8 +262,8 @@ function createRecipientItem(recipient) {
     const holder = document.createElement('strong');
     holder.textContent = recipient.holder;
 
-    const cbu = document.createElement('span');
-    cbu.textContent = recipient.cbu;
+    const cvu = document.createElement('span');
+    cvu.textContent = recipient.cvu;
 
     const actions = document.createElement('div');
     actions.className = 'list-actions';
@@ -273,16 +273,16 @@ function createRecipientItem(recipient) {
     useButton.className = 'button button-secondary';
     useButton.textContent = 'Transferir';
     useButton.dataset.action = 'use-recipient';
-    useButton.dataset.cbu = recipient.cbu;
+    useButton.dataset.cvu = recipient.cvu;
 
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.className = 'button button-danger';
     deleteButton.textContent = 'Eliminar';
     deleteButton.dataset.action = 'delete-recipient';
-    deleteButton.dataset.cbu = recipient.cbu;
+    deleteButton.dataset.cvu = recipient.cvu;
 
-    details.append(holder, cbu);
+    details.append(holder, cvu);
     actions.append(useButton, deleteButton);
     item.append(details, actions);
 
@@ -295,7 +295,7 @@ function renderRecipients(recipients) {
     if (recipients.length === 0) {
         const empty = document.createElement('p');
         empty.className = 'card muted';
-        empty.textContent = 'Todavía no guardaste ningún CBU.';
+        empty.textContent = 'Todavía no guardaste ningún CVU.';
         elements.recipientsList.append(empty);
         return;
     }
@@ -422,7 +422,7 @@ function renderAdminAccounts(response) {
         const row = document.createElement('tr');
         appendCell(row, account.id);
         appendCell(row, `${account.user?.name || 'Sin usuario'} (#${account.user_id})`);
-        appendCell(row, account.cbu);
+        appendCell(row, account.cvu);
         appendCell(row, accountTypeLabel(account.type));
         appendCell(row, account.currency);
         appendCell(row, formatMoney(account.balance, account.currency));
@@ -443,11 +443,11 @@ function renderAdminMovements(response) {
     response.data.forEach((movement) => {
         const row = document.createElement('tr');
         appendCell(row, movement.id);
-        appendCell(row, `${movement.account?.cbu || '—'} (#${movement.account_id})`);
+        appendCell(row, `${movement.account?.cvu || '—'} (#${movement.account_id})`);
         appendCell(row, movement.account?.user_id ? `#${movement.account.user_id}` : '—');
         appendCell(row, movementTypeLabel(movement.type));
         appendCell(row, formatMoney(movement.amount, movement.account?.currency || 'ARS'));
-        appendCell(row, movement.counterparty_cbu || '—');
+        appendCell(row, movement.counterparty_cvu || '—');
         appendCell(row, formatDate(movement.created_at));
         appendActionsCell(row, 'movements', movement.id);
         elements.adminMovementsBody.append(row);
@@ -545,7 +545,7 @@ async function openEditAccountDialog(accountId) {
     const account = response.data;
     elements.adminAccountForm.reset();
     elements.adminAccountForm.dataset.resourceId = account.id;
-    elements.adminAccountForm.elements.cbu.value = account.cbu;
+    elements.adminAccountForm.elements.cvu.value = account.cvu;
     elements.adminAccountForm.elements.type.value = account.type;
     elements.adminAccountForm.elements.currency.value = account.currency;
     elements.adminAccountForm.elements.balance.value = account.balance;
@@ -557,7 +557,7 @@ async function openEditAccountDialog(accountId) {
 
 function updateCounterpartyRequirement() {
     const type = elements.adminMovementForm.elements.type.value;
-    elements.adminMovementForm.elements.counterparty_cbu.required = type === 'transfer_out' || type === 'transfer_in';
+    elements.adminMovementForm.elements.counterparty_cvu.required = type === 'transfer_out' || type === 'transfer_in';
 }
 
 function openCreateMovementDialog() {
@@ -576,7 +576,7 @@ async function openEditMovementDialog(movementId) {
     elements.adminMovementForm.elements.account_id.value = movement.account_id;
     elements.adminMovementForm.elements.type.value = movement.type;
     elements.adminMovementForm.elements.amount.value = movement.amount;
-    elements.adminMovementForm.elements.counterparty_cbu.value = movement.counterparty_cbu ?? '';
+    elements.adminMovementForm.elements.counterparty_cvu.value = movement.counterparty_cvu ?? '';
     updateCounterpartyRequirement();
     document.querySelector('#admin-movement-dialog-title').textContent = `Editar movimiento #${movement.id}`;
     elements.adminMovementDialog.showModal();
@@ -595,7 +595,7 @@ function adminUserPayload(form) {
 
 function adminMovementPayload(form) {
     const fields = formValues(form);
-    fields.counterparty_cbu = fields.counterparty_cbu || null;
+    fields.counterparty_cvu = fields.counterparty_cvu || null;
 
     return fields;
 }
@@ -689,7 +689,7 @@ elements.transferForm.addEventListener('submit', async (event) => {
 
     try {
         const fields = formValues(elements.transferForm);
-        const response = await withLoading(() => createTransfer(fields.destination_cbu, fields.amount));
+        const response = await withLoading(() => createTransfer(fields.destination_cvu, fields.amount));
         elements.transferForm.reset();
         await withLoading(() => Promise.all([loadSummary(), loadMovements(1)]));
         showMessage(response.data.message);
@@ -738,11 +738,11 @@ elements.recipientForm.addEventListener('submit', async (event) => {
     hideMessage();
 
     try {
-        const { cbu } = formValues(elements.recipientForm);
-        await withLoading(() => addRecipient(cbu, state.user.id));
+        const { cvu } = formValues(elements.recipientForm);
+        await withLoading(() => addRecipient(cvu, state.user.id));
         elements.recipientForm.reset();
         await withLoading(loadRecipients);
-        showMessage('CBU guardado correctamente.');
+        showMessage('CVU guardado correctamente.');
     } catch (error) {
         showError(error);
     }
@@ -756,9 +756,9 @@ elements.recipientsList.addEventListener('click', async (event) => {
     }
 
     if (button.dataset.action === 'use-recipient') {
-        document.querySelector('#transfer-cbu').value = button.dataset.cbu;
+        document.querySelector('#transfer-cvu').value = button.dataset.cvu;
         activateSection('operations-section');
-        document.querySelector('#transfer-cbu').focus();
+        document.querySelector('#transfer-cvu').focus();
         return;
     }
 
@@ -766,7 +766,7 @@ elements.recipientsList.addEventListener('click', async (event) => {
         hideMessage();
 
         try {
-            const response = await withLoading(() => deleteRecipient(button.dataset.cbu, state.user.id));
+            const response = await withLoading(() => deleteRecipient(button.dataset.cvu, state.user.id));
             await withLoading(loadRecipients);
             showMessage(response.message);
         } catch (error) {

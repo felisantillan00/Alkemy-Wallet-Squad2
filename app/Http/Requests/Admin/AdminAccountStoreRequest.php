@@ -22,8 +22,8 @@ class AdminAccountStoreRequest extends FormRequest
             'type' => ['required', 'string', 'in:savings,checking'],
             'currency' => ['required', 'string', 'in:ARS,USD'],
 
-            # NOTA: 'cbu' y 'balance' NO se aceptan desde el cliente.
-            # El CBU se genera con Account::generarCbuUnico() y el balance
+            # NOTA: 'cvu' y 'balance' NO se aceptan desde el cliente.
+            # El CVU se genera con Account::generarCvuUnico() y el balance
             # de una cuenta nueva siempre arranca en 0.00 (no es fillable
             # y en el resto del proyecto se toca solo via depositos/transferencias).
         ];
