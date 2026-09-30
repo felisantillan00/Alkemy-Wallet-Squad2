@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 #[Fillable(['name', 'email', 'password', 'role_id', 'age', 'image'])]
@@ -63,21 +62,5 @@ class User extends Authenticatable implements JWTSubject
     public function savedAccounts()
     {
         return $this->belongsToMany(Account::class, 'saved_accounts')->withTimestamps();
-    }
-
-    # URL PUBLICA DE LA FOTO DE PERFIL.
-    # Las fotos subidas se sirven desde la API (ProfileImageController) y no desde /storage:
-    # en hostings donde no se puede crear el enlace public/storage, esa URL da 404.
-    public function imageUrl(): ?string
-    {
-        if (! $this->image) {
-            return null;
-        }
-
-        if (Str::startsWith($this->image, ['http://', 'https://'])) {
-            return $this->image;
-        }
-
-        return url('/api/v1/profile-images/'.basename($this->image));
     }
 }

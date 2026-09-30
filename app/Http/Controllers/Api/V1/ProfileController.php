@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Attributes as OA;
 class ProfileController extends Controller
 {
@@ -166,7 +167,7 @@ class ProfileController extends Controller
             'name'  => $user->name,
             'email' => $user->email,
             'age'   => $user->age,
-            'image' => $user->imageUrl(),
+            'image' => $user->image ? Storage::disk('public')->url($user->image) : null,
         ];
     }
 }

@@ -25,27 +25,39 @@ php artisan serve
 
 Por defecto quedará disponible en `http://127.0.0.1:8000`.
 
-Las imágenes de perfil se sirven desde la propia API (`/api/v1/profile-images/...`), así que no hace falta `php artisan storage:link`.
+Para mostrar las imágenes de perfil guardadas también puede ser necesario crear el enlace público una sola vez:
 
-## 2. Abrir el frontend
-
-El frontend vive en `public/app`, dentro del propio Laravel, por lo que lo sirve el mismo servidor que la API. Abrí:
-
-```text
-http://127.0.0.1:8000/app/index.html
+```bash
+php artisan storage:link
 ```
 
-La raíz `http://127.0.0.1:8000/` redirige a esa dirección. No abras `index.html` con una URL `file://`: los módulos JavaScript y las peticiones a la API deben ejecutarse desde un servidor HTTP.
+## 2. Servir el frontend mediante HTTP
+
+No abras `index.html` directamente con una URL `file://`. Los módulos JavaScript y las peticiones a la API deben ejecutarse desde un servidor HTTP.
+
+Una opción simple, si tenés PHP instalado, es abrir otra terminal en la raíz del proyecto y ejecutar:
+
+```bash
+php -S 127.0.0.1:5500 -t frontend
+```
+
+Después abrí:
+
+```text
+http://127.0.0.1:5500
+```
+
+La API y el frontend deben mantenerse iniciados en sus respectivas terminales.
 
 ## 3. Configurar la URL de la API
 
-`public/app/index.html` usa una URL relativa:
+La URL base se configura en `frontend/index.html`:
 
 ```html
-<meta name="api-base-url" content="/api/v1">
+<meta name="api-base-url" content="http://127.0.0.1:8000/api/v1">
 ```
 
-Como el frontend y la API comparten dominio, funciona igual en local y en producción sin cambiar nada. Solo si servís el frontend desde otro host o puerto (por ejemplo `php -S 127.0.0.1:5500 -t public/app`), reemplazá el valor por la URL completa de la API, que debe terminar en `/api/v1`, por ejemplo `http://127.0.0.1:8000/api/v1`.
+Si Laravel utiliza otro host o puerto, cambiá únicamente el valor de `content`. La URL debe terminar en `/api/v1`.
 
 ## 4. Registrarse
 
@@ -161,7 +173,7 @@ Si un endpoint administrativo devuelve `403` mientras el panel está abierto, el
 ## Organización
 
 ```text
-public/app/
+frontend/
 ├── index.html
 ├── css/
 │   └── styles.css

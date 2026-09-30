@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Models\Role;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,19 +10,6 @@ class UpdateUserRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
-    }
-
-    # El panel del frontend envía el rol por nombre ("user"/"admin"); se traduce a role_id.
-    # Si viene role_id, tiene prioridad.
-    protected function prepareForValidation(): void
-    {
-        if (! $this->filled('role_id') && $this->filled('role')) {
-            $roleId = Role::where('role_name', $this->input('role'))->value('id');
-
-            if ($roleId) {
-                $this->merge(['role_id' => $roleId]);
-            }
-        }
     }
 
     /**
@@ -36,13 +22,10 @@ class UpdateUserRequest extends FormRequest
         return [
             'name'     => 'sometimes|string|max:255',
             'email'    => 'sometimes|email|unique:users,email,' . $userId,
-            // La confirmación es opcional (el panel no la envía); si se envía, debe coincidir.
-            'password' => array_merge(['sometimes', 'string', 'min:8'], $this->has('password_confirmation') ? ['confirmed'] : []),
-            // Mismas reglas que el perfil propio; null borra el valor.
-            'age'      => 'sometimes|nullable|integer|between:1,120',
-            'image'    => 'sometimes|nullable|url|max:2048',
+            'password' => 'sometimes|string|min:8|confirmed',
+            'age'      => 'sometimes|integer|min:18|max:100',
+            'image'    => 'sometimes|url|max:2048',
             'role_id'  => 'sometimes|exists:roles,id',
-            'role'     => 'sometimes|in:user,admin',
         ];
     }
 
@@ -60,13 +43,13 @@ class UpdateUserRequest extends FormRequest
             'password.confirmed' => 'La contraseña debe confirmarse.',
 
             'age.integer' => 'La edad debe ser un valor numérico.',
-            'age.between' => 'La edad debe estar entre 1 y 120.',
+            'age.min' => 'La edad mínima es de 18 años.',
+            'age.max' => 'La edad máxima es de 100 años.',
 
             'image.url' => 'El link de la imagen debe tener una url válida.',
             'image.max' => 'El link de la imagen no debe superar los 2048 caracteres.',
 
             'role_id.exists' => 'El id del rol debe ser un id válido.',
-            'role.in' => 'El rol debe ser "user" o "admin".',
         ];
     }
 }
