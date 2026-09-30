@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="api-base-url" content="http://127.0.0.1:8000/api/v1">
+    <meta name="api-base-url" content="/api/v1">
     <title>Wallet</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -350,7 +350,7 @@
             <label>Cuenta ID<input name="account_id" type="number" min="1" required></label>
             <label>Tipo<select name="type" required><option value="deposit">Depósito</option><option value="transfer_out">Transferencia enviada</option><option value="transfer_in">Transferencia recibida</option></select></label>
             <label>Monto<input name="amount" type="number" min="0.01" step="0.01" required></label>
-            <label>CVU contraparte<input name="counterparty_cvu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22"></label>
+            <label>CVU contraparte<input name="counterpart_cvu" type="text" inputmode="numeric" pattern="[0-9]{22}" minlength="22" maxlength="22"></label>
             <p class="notice compact-notice">Esta operación no recalcula el saldo de la cuenta.</p>
             <div class="dialog-actions"><button class="button button-secondary" type="button" data-close-dialog>Cancelar</button><button class="button button-primary" type="submit">Guardar</button></div>
         </form>

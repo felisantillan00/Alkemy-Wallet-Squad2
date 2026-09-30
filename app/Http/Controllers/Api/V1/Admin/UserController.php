@@ -102,21 +102,22 @@ class UserController extends Controller
         #[OA\Post(
         path: '/api/v1/admin/users',
         summary: 'Crear usuario',
-        description: 'Crea un usuario con el rol indicado y su cuenta asociada con CVU único y saldo inicial 0. Solo para administradores.',
+        description: 'Crea un usuario con el rol indicado y su cuenta asociada con CVU único y saldo inicial 0. El rol se indica con `role` ("user"/"admin") o con `role_id`. `password_confirmation`, `age` (1 a 120) e `image` son opcionales. Solo para administradores.',
         tags: ['Admin: usuarios'],
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['name', 'email', 'password', 'password_confirmation', 'age', 'image', 'role_id'],
+                required: ['name', 'email', 'password'],
                 properties: [
                     new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Nuevo Usuario'),
                     new OA\Property(property: 'email', type: 'string', format: 'email', description: 'Único en el sistema', example: 'nuevo@example.test'),
                     new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, example: 'password123'),
-                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', description: 'Debe coincidir con password', example: 'password123'),
-                    new OA\Property(property: 'age', type: 'integer', minimum: 18, maximum: 100, example: 30),
-                    new OA\Property(property: 'image', type: 'string', format: 'uri', maxLength: 2048, description: 'URL de la imagen del usuario', example: 'https://example.test/foto.jpg'),
-                    new OA\Property(property: 'role_id', type: 'integer', description: 'ID de un rol existente (1 = admin, 2 = user)', example: 2),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', description: 'Opcional; si se envía, debe coincidir con password', example: 'password123'),
+                    new OA\Property(property: 'age', type: 'integer', nullable: true, minimum: 1, maximum: 120, description: 'Opcional', example: 30),
+                    new OA\Property(property: 'image', type: 'string', format: 'uri', nullable: true, maxLength: 2048, description: 'Opcional. URL de la imagen del usuario', example: 'https://example.test/foto.jpg'),
+                    new OA\Property(property: 'role', type: 'string', enum: ['user', 'admin'], description: 'Rol por nombre. Alternativa a role_id', example: 'user'),
+                    new OA\Property(property: 'role_id', type: 'integer', description: 'ID de un rol existente (1 = admin, 2 = user). Alternativa a role; tiene prioridad si se envían ambos', example: 2),
                     new OA\Property(property: 'account_type', type: 'string', enum: ['savings', 'checking'], nullable: true, description: 'Opcional, por defecto savings', example: 'savings'),
                     new OA\Property(property: 'account_currency', type: 'string', enum: ['ARS', 'USD'], nullable: true, description: 'Opcional, por defecto ARS', example: 'ARS'),
                 ]
@@ -287,11 +288,12 @@ class UserController extends Controller
                 properties: [
                     new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Nombre Actualizado'),
                     new OA\Property(property: 'email', type: 'string', format: 'email', description: 'Único en el sistema (se permite reenviar el propio)', example: 'actualizado@example.test'),
-                    new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, description: 'Requiere password_confirmation', example: 'password123'),
-                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'password123'),
-                    new OA\Property(property: 'age', type: 'integer', minimum: 18, maximum: 100, example: 35),
-                    new OA\Property(property: 'image', type: 'string', format: 'uri', maxLength: 2048, example: 'https://example.test/otra.jpg'),
-                    new OA\Property(property: 'role_id', type: 'integer', description: 'ID de un rol existente (1 = admin, 2 = user)', example: 2),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, description: 'Si se omite, se conserva la actual', example: 'password123'),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', description: 'Opcional; si se envía, debe coincidir con password', example: 'password123'),
+                    new OA\Property(property: 'age', type: 'integer', nullable: true, minimum: 1, maximum: 120, example: 35),
+                    new OA\Property(property: 'image', type: 'string', format: 'uri', nullable: true, maxLength: 2048, example: 'https://example.test/otra.jpg'),
+                    new OA\Property(property: 'role', type: 'string', enum: ['user', 'admin'], description: 'Rol por nombre. Alternativa a role_id', example: 'user'),
+                    new OA\Property(property: 'role_id', type: 'integer', description: 'ID de un rol existente (1 = admin, 2 = user). Alternativa a role', example: 2),
                 ]
             )
         ),
