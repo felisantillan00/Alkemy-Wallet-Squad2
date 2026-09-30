@@ -68,7 +68,7 @@ class MovementController extends Controller
             'type'            => $movimiento->type,
             'amount'          => number_format((float) $movimiento->amount, 2, '.', ''),
             'date'            => $movimiento->created_at->toISOString(),
-            'counterpart_cbu' => $movimiento->counterpart_cbu,
+            'counterpart_cvu' => $movimiento->counterpart_cvu,
         ]);
 
         return response()->json($movimientos);

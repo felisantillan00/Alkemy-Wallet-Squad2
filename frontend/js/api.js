@@ -136,11 +136,11 @@ export function createDeposit(amount) {
     });
 }
 
-export function createTransfer(destinationCbu, amount) {
+export function createTransfer(destinationCvu, amount) {
     return apiRequest('/transfers', {
         method: 'POST',
         body: {
-            destination_cbu: destinationCbu,
+            destination_cvu: destinationCvu,
             amount,
         },
     });
@@ -157,17 +157,17 @@ export function getMovements(page = 1, perPage = 10) {
 }
 
 export function getRecipients(userId) {
-    return apiRequest(`/cbu/users/${encodeURIComponent(userId)}`);
+    return apiRequest(`/cvu/users/${encodeURIComponent(userId)}`);
 }
 
-export function addRecipient(cbu, userId) {
-    return apiRequest(`/cbu/${encodeURIComponent(cbu)}/users/${encodeURIComponent(userId)}`, {
+export function addRecipient(cvu, userId) {
+    return apiRequest(`/cvu/${encodeURIComponent(cvu)}/users/${encodeURIComponent(userId)}`, {
         method: 'POST',
     });
 }
 
-export function deleteRecipient(cbu, userId) {
-    return apiRequest(`/cbu/${encodeURIComponent(cbu)}/users/${encodeURIComponent(userId)}`, {
+export function deleteRecipient(cvu, userId) {
+    return apiRequest(`/cvu/${encodeURIComponent(cvu)}/users/${encodeURIComponent(userId)}`, {
         method: 'DELETE',
     });
 }

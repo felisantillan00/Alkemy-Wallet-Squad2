@@ -125,13 +125,13 @@ class ProfileController extends Controller
 
     # DELETE /api/v1/profile
     # Da de baja (soft delete) al usuario autenticado.
-    # La cuenta, su balance, sus movimientos y los CBUs guardados no se tocan:
+    # La cuenta, su balance, sus movimientos y los CVUs guardados no se tocan:
     # accounts.user_id sigue apuntando al mismo id, ya que el registro de users
     # no se borra de verdad (solo se marca deleted_at).
         #[OA\Delete(
         path: '/api/v1/profile',
         summary: 'Eliminar perfil propio',
-        description: 'Baja lógica (soft delete) del usuario autenticado. La cuenta, su saldo, movimientos y CBUs guardados no se modifican. El token deja de ser válido.',
+        description: 'Baja lógica (soft delete) del usuario autenticado. La cuenta, su saldo, movimientos y CVUs guardados no se modifican. El token deja de ser válido.',
         tags: ['Perfil'],
         security: [['bearerAuth' => []]],
         responses: [

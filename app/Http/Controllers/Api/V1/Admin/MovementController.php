@@ -117,7 +117,7 @@ class MovementController extends Controller
                     new OA\Property(property: 'account_id', type: 'integer', description: 'ID de una cuenta existente', example: 1),
                     new OA\Property(property: 'type', type: 'string', enum: ['deposit', 'transfer_out', 'transfer_in'], example: 'deposit'),
                     new OA\Property(property: 'amount', type: 'number', format: 'float', description: 'Mayor que 0', example: 150.00),
-                    new OA\Property(property: 'counterpart_cbu', type: 'string', nullable: true, description: 'CBU de 22 dígitos de una cuenta existente', example: '0000003100000000000002'),
+                    new OA\Property(property: 'counterpart_cvu', type: 'string', nullable: true, description: 'CVU de 22 dígitos de una cuenta existente', example: '0000003100000000000002'),
                 ]
             )
         ),
@@ -140,7 +140,7 @@ class MovementController extends Controller
             ),
             new OA\Response(response: 401, description: 'No autenticado', content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedError')),
             new OA\Response(response: 403, description: 'El usuario autenticado no es administrador', content: new OA\JsonContent(ref: '#/components/schemas/ForbiddenError')),
-            new OA\Response(response: 422, description: 'Error de validación (cuenta o CBU inexistente, tipo inválido, monto menor o igual a 0)', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
+            new OA\Response(response: 422, description: 'Error de validación (cuenta o CVU inexistente, tipo inválido, monto menor o igual a 0)', content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')),
         ]
     )]
     public function store(StoreMovementRequest $request): JsonResponse
@@ -219,7 +219,7 @@ class MovementController extends Controller
                     new OA\Property(property: 'account_id', type: 'integer', description: 'ID de una cuenta existente', example: 1),
                     new OA\Property(property: 'type', type: 'string', enum: ['deposit', 'transfer_out', 'transfer_in'], example: 'transfer_out'),
                     new OA\Property(property: 'amount', type: 'number', format: 'float', description: 'Mayor que 0', example: 200.00),
-                    new OA\Property(property: 'counterpart_cbu', type: 'string', nullable: true, description: 'CBU de 22 dígitos de una cuenta existente', example: '0000003100000000000002'),
+                    new OA\Property(property: 'counterpart_cvu', type: 'string', nullable: true, description: 'CVU de 22 dígitos de una cuenta existente', example: '0000003100000000000002'),
                 ]
             )
         ),
@@ -300,7 +300,7 @@ class MovementController extends Controller
     }
 
     /**
-     * Devuelve el movimiento con su cuenta, moneda y CBU asociado,
+     * Devuelve el movimiento con su cuenta, moneda y CVU asociado,
      * como pide el criterio de aceptacion del ticket.
      */
     private function formatear(Movement $movimiento): array
@@ -310,10 +310,10 @@ class MovementController extends Controller
             'type'            => $movimiento->type,
             'amount'          => number_format((float) $movimiento->amount, 2, '.', ''),
             'date'            => $movimiento->created_at->toISOString(),
-            'counterpart_cbu' => $movimiento->counterpart_cbu,
+            'counterpart_cvu' => $movimiento->counterpart_cvu,
             'account' => [
                 'id'       => $movimiento->account->id,
-                'cbu'      => $movimiento->account->cbu,
+                'cvu'      => $movimiento->account->cvu,
                 'type'     => $movimiento->account->type,
                 'currency' => $movimiento->account->currency,
                 'user' => [

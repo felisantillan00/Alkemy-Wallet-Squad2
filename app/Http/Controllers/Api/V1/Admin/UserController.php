@@ -102,7 +102,7 @@ class UserController extends Controller
         #[OA\Post(
         path: '/api/v1/admin/users',
         summary: 'Crear usuario',
-        description: 'Crea un usuario con el rol indicado y su cuenta asociada con CBU único y saldo inicial 0. Solo para administradores.',
+        description: 'Crea un usuario con el rol indicado y su cuenta asociada con CVU único y saldo inicial 0. Solo para administradores.',
         tags: ['Admin: usuarios'],
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
@@ -148,7 +148,7 @@ class UserController extends Controller
                                             type: 'object',
                                             properties: [
                                                 new OA\Property(property: 'id', type: 'integer', example: 5),
-                                                new OA\Property(property: 'cbu', type: 'string', example: '0000003100000000000005'),
+                                                new OA\Property(property: 'cvu', type: 'string', example: '0000003100000000000005'),
                                                 new OA\Property(property: 'type', type: 'string', enum: ['savings', 'checking'], example: 'savings'),
                                                 new OA\Property(property: 'currency', type: 'string', enum: ['ARS', 'USD'], example: 'ARS'),
                                                 new OA\Property(property: 'balance', type: 'number', format: 'float', example: 0),
@@ -180,7 +180,7 @@ class UserController extends Controller
             // utilizamos los campos)
             Account::create([
                 'user_id' => $user->id,
-                'cbu'     => Account::generarCbuUnico(),
+                'cvu'     => Account::generarCvuUnico(),
                 'type'     => $datos['account_type'] ?? 'savings',
                 'currency' => $datos['account_currency'] ?? 'ARS',
             ]);
@@ -204,7 +204,7 @@ class UserController extends Controller
                     'role' => $user->role?->role_name,
                     'account' => [
                         'id' => $user->account->id,
-                        'cbu' => $user->account->cbu,
+                        'cvu' => $user->account->cvu,
                         'type' => $user->account->type,
                         'currency' => $user->account->currency,
                         'balance'  => $user->account->balance,

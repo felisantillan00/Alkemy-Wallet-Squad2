@@ -17,7 +17,7 @@ class TransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'destination_cbu' => ['required', 'string', 'exists:accounts,cbu'],
+            'destination_cvu' => ['required', 'string', 'exists:accounts,cvu'],
             'amount'          => ['required', 'numeric', 'min:0.01'],
         ];
     }
@@ -26,8 +26,8 @@ class TransferRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'destination_cbu.required' => 'El CBU de destino es obligatorio.',
-            'destination_cbu.exists'   => 'No existe ninguna cuenta con ese CBU.',
+            'destination_cvu.required' => 'El CVU de destino es obligatorio.',
+            'destination_cvu.exists'   => 'No existe ninguna cuenta con ese CVU.',
             'amount.required'          => 'El monto es obligatorio.',
             'amount.numeric'           => 'El monto debe ser un número.',
             'amount.min'               => 'El monto debe ser mayor que 0.',
@@ -44,8 +44,8 @@ class TransferRequest extends FormRequest
                 return;
             }
 
-            if ($this->filled('destination_cbu') && $this->input('destination_cbu') === $cuentaOrigen->cbu) {
-                $validator->errors()->add('destination_cbu', 'No podés transferirte a tu propia cuenta.');
+            if ($this->filled('destination_cvu') && $this->input('destination_cvu') === $cuentaOrigen->cvu) {
+                $validator->errors()->add('destination_cvu', 'No podés transferirte a tu propia cuenta.');
             }
 
             if ($this->filled('amount') && is_numeric($this->input('amount')) && $cuentaOrigen->balance < $this->input('amount')) {
