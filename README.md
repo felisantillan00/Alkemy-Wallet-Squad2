@@ -249,3 +249,5 @@ Para la demo final, usar al menos **dos usuarios** y **un administrador** (`test
 ## Frontend demostrativo
 
 Se integró el frontend base provisto por la cátedra, que consume la API por AJAX/JSON y demuestra login, perfil, cuenta, depósito, transferencia e historial. El token se guarda solo en el cliente (nunca se versiona) y las secciones privadas redirigen al login si no hay sesión. La API sigue siendo utilizable sin el frontend, directamente desde Swagger o cualquier cliente HTTP.
+
+El frontend está en `public/app` y lo sirve el propio Laravel: la raíz del sitio (`/`) redirige a `/app/index.html`, y usa la API del mismo dominio (`/api/v1`), por lo que funciona igual en local y en producción sin configurar nada. Las fotos de perfil se sirven desde la API (`GET /api/v1/profile-images/{archivo}`), sin depender del enlace `public/storage`. Más detalle en [`public/app/README.md`](public/app/README.md).
