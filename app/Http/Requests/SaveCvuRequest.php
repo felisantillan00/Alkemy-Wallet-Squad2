@@ -6,25 +6,25 @@ use App\Models\Account;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Foundation\Http\FormRequest;
 
-class SaveCbuRequest extends FormRequest
+class SaveCvuRequest extends FormRequest
 {
-    # SOLO EL PROPIO USUARIO AUTENTICADO PUEDE MODIFICAR SU LISTA DE CBUs GUARDADOS
+    # SOLO EL PROPIO USUARIO AUTENTICADO PUEDE MODIFICAR SU LISTA DE CVUs GUARDADOS
     public function authorize(): bool
     {
         return auth('api')->id() === (int) $this->route('idUser');
     }
 
-    # EL CBU Y EL idUser VIENEN POR LA URL, NO POR EL BODY
+    # EL CVU Y EL idUser VIENEN POR LA URL, NO POR EL BODY
     public function validationData()
     {
         return array_merge($this->all(), $this->route()->parameters());
     }
 
-    # REGLAS DE VALIDACION DEL CBU A GUARDAR
+    # REGLAS DE VALIDACION DEL CVU A GUARDAR
     public function rules(): array
     {
         return [
-            'cbu'    => ['required', 'string', 'size:22', 'exists:accounts,cbu'],
+            'cvu'    => ['required', 'string', 'size:22', 'exists:accounts,cvu'],
             'idUser' => ['required', 'integer'],
         ];
     }
@@ -33,9 +33,9 @@ class SaveCbuRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'cbu.required' => 'El CBU es obligatorio.',
-            'cbu.size'     => 'El CBU debe tener 22 dígitos.',
-            'cbu.exists'   => 'No existe ninguna cuenta con ese CBU.',
+            'cvu.required' => 'El CVU es obligatorio.',
+            'cvu.size'     => 'El CVU debe tener 22 dígitos.',
+            'cvu.exists'   => 'No existe ninguna cuenta con ese CVU.',
         ];
     }
 
@@ -43,25 +43,25 @@ class SaveCbuRequest extends FormRequest
     public function withValidator(ValidatorContract $validator): void
     {
         $validator->after(function (ValidatorContract $validator) {
-            $cbu = $this->route('cbu');
+            $cvu = $this->route('cvu');
             $user = auth('api')->user();
 
-            if (! $user || ! $cbu) {
+            if (! $user || ! $cvu) {
                 return;
             }
 
             $user->load('account');
 
-            if ($cbu === $user->account?->cbu) {
-                $validator->errors()->add('cbu', 'No podés guardar tu propio CBU.');
+            if ($cvu === $user->account?->cvu) {
+                $validator->errors()->add('cvu', 'No podés guardar tu propio CVU.');
 
                 return;
             }
 
-            $cuenta = Account::where('cbu', $cbu)->first();
+            $cuenta = Account::where('cvu', $cvu)->first();
 
             if ($cuenta && $user->savedAccounts()->where('account_id', $cuenta->id)->exists()) {
-                $validator->errors()->add('cbu', 'Ese CBU ya está guardado.');
+                $validator->errors()->add('cvu', 'Ese CVU ya está guardado.');
             }
         });
     }

@@ -61,11 +61,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/movements', [MovementController::class, 'index']);
     });
 
-    // ---------- CBUs de terceros guardados ----------
+    // ---------- CVUs de terceros guardados ----------
     Route::middleware('auth:api')->group(function () {
-        Route::post('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'store']);
-        Route::get('/cbu/users/{idUser}', [SavedAccountController::class, 'index']);
-        Route::delete('/cbu/{cbu}/users/{idUser}', [SavedAccountController::class, 'destroy']);
+        Route::post('/cvu/{cvu}/users/{idUser}', [SavedAccountController::class, 'store']);
+        Route::get('/cvu/users/{idUser}', [SavedAccountController::class, 'index']);
+        Route::delete('/cvu/{cvu}/users/{idUser}', [SavedAccountController::class, 'destroy']);
     });
 
     // ---------- Administración (solo rol admin) ----------

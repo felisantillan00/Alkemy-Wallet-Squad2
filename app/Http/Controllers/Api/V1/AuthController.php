@@ -16,11 +16,11 @@ use OpenApi\Attributes as OA;
 class AuthController extends Controller
 {
     # POST /api/v1/auth/register
-    # Registra un usuario y le crea su cuenta con CBU unico y saldo inicial 0.00
+    # Registra un usuario y le crea su cuenta con CVU unico y saldo inicial 0.00
     #[OA\Post(
         path: '/api/v1/auth/register',
         summary: 'Registrar usuario',
-        description: 'Crea un usuario con rol "user" y su cuenta con CBU único y saldo inicial 0.00. El rol lo asigna el servidor: cualquier campo de rol enviado se ignora.',
+        description: 'Crea un usuario con rol "user" y su cuenta con CVU único y saldo inicial 0.00. El rol lo asigna el servidor: cualquier campo de rol enviado se ignora.',
         tags: ['Autenticación'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -59,7 +59,7 @@ class AuthController extends Controller
                                     property: 'account',
                                     type: 'object',
                                     properties: [
-                                        new OA\Property(property: 'cbu', type: 'string', example: '0000003100000000000001'),
+                                        new OA\Property(property: 'cvu', type: 'string', example: '0000003100000000000001'),
                                         new OA\Property(property: 'balance', type: 'string', example: '0.00'),
                                     ]
                                 ),
@@ -90,7 +90,7 @@ class AuthController extends Controller
 
             Account::create([
                 'user_id' => $user->id,
-                'cbu'     => Account::generarCbuUnico(),
+                'cvu'     => Account::generarCvuUnico(),
             ]);
 
             return $user;
@@ -108,7 +108,7 @@ class AuthController extends Controller
                     'email' => $user->email,
                 ],
                 'account' => [
-                    'cbu'     => $user->account->cbu,
+                    'cvu'     => $user->account->cvu,
                     'balance' => number_format((float) $user->account->balance, 2, '.', ''),
                 ],
             ],

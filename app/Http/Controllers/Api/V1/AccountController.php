@@ -10,7 +10,7 @@ class AccountController extends Controller
         #[OA\Get(
         path: '/api/v1/account',
         summary: 'Consultar cuenta propia',
-        description: 'Devuelve CBU, tipo, moneda y saldo de la cuenta del usuario autenticado. La cuenta se obtiene del token: no se puede consultar la de otro usuario.',
+        description: 'Devuelve CVU, tipo, moneda y saldo de la cuenta del usuario autenticado. La cuenta se obtiene del token: no se puede consultar la de otro usuario.',
         tags: ['Cuenta'],
         security: [['bearerAuth' => []]],
         responses: [
@@ -32,7 +32,7 @@ class AccountController extends Controller
         /** @var \App\Models\User $user */
 
         # GET /api/v1/account
-        # Devuelve el cbu y el balance de la cuenta del usuario autenticado.
+        # Devuelve el cvu y el balance de la cuenta del usuario autenticado.
         # La cuenta se obtiene desde el usuario autenticado.
         
         # Obtenemos los datos del usuario autenticado.
@@ -41,11 +41,11 @@ class AccountController extends Controller
         # Cargamos la relacion con account.
         $user->load('account');
 
-        # Devolvemos el cbu, tipo, moneda y balance de la cuenta.
+        # Devolvemos el cvu, tipo, moneda y balance de la cuenta.
         return response()->json([
             'success' => true,
             'data' => [
-                'cbu' => $user->account->cbu,
+                'cvu' => $user->account->cvu,
                 'type' => $user->account->type,
                 'currency' => $user->account->currency,
                 'balance' => $user->account->balance,

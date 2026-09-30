@@ -78,21 +78,21 @@ Para probar una transferencia hacen falta dos cuentas:
 
 1. Registrá el primer usuario e iniciá sesión.
 2. Realizá un depósito para que tenga saldo.
-3. Copiá su CBU si querés usarlo luego.
+3. Copiá su CVU si querés usarlo luego.
 4. Cerrá sesión.
 5. Registrá un segundo usuario e iniciá sesión.
-6. Copiá el CBU del segundo usuario.
+6. Copiá el CVU del segundo usuario.
 7. Volvé a iniciar sesión como el primer usuario.
-8. Entrá en **Operaciones** y escribí el CBU del segundo usuario y el monto.
+8. Entrá en **Operaciones** y escribí el CVU del segundo usuario y el monto.
 9. Presioná **Realizar transferencia**.
 
-También podés guardar previamente el segundo CBU en **Destinatarios**. El botón **Transferir** de un destinatario copia automáticamente su CBU al formulario.
+También podés guardar previamente el segundo CVU en **Destinatarios**. El botón **Transferir** de un destinatario copia automáticamente su CVU al formulario.
 
-La API rechazará, entre otros casos, un CBU inexistente, el CBU propio o un monto superior al saldo disponible. El frontend muestra el mensaje exacto recibido.
+La API rechazará, entre otros casos, un CVU inexistente, el CVU propio o un monto superior al saldo disponible. El frontend muestra el mensaje exacto recibido.
 
 ## 8. Consultar movimientos
 
-Entrá en **Movimientos**. La tabla muestra tipo, monto, fecha y CBU contraparte.
+Entrá en **Movimientos**. La tabla muestra tipo, monto, fecha y CVU contraparte.
 
 Los botones **Anterior** y **Siguiente** utilizan los datos reales del paginador de Laravel. Se muestran 10 movimientos por página, ordenados del más reciente al más antiguo.
 
@@ -141,7 +141,7 @@ Cambiar administrativamente el saldo de una cuenta **no crea un movimiento autom
 
 La pestaña **Movimientos** permite listar, crear, editar y eliminar movimientos. También permite usar los filtros reales `account_id` y `user_id`.
 
-Los movimientos `transfer_out` y `transfer_in` requieren un CBU contraparte de 22 dígitos. En un movimiento `deposit`, ese campo puede quedar vacío.
+Los movimientos `transfer_out` y `transfer_in` requieren un CVU contraparte de 22 dígitos. En un movimiento `deposit`, ese campo puede quedar vacío.
 
 Crear, editar o eliminar un movimiento administrativo **no recalcula el saldo de la cuenta**. El frontend muestra esta advertencia y no modifica saldos automáticamente.
 

@@ -41,7 +41,7 @@ class TransferTest extends TestCase
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/v1/transfers', [
-                'destination_cbu' => $destino->cbu,
+                'destination_cvu' => $destino->cvu,
                 'amount'          => 30.00,
             ]);
 
@@ -65,14 +65,14 @@ class TransferTest extends TestCase
             'account_id'      => $origen->id,
             'type'            => 'transfer_out',
             'amount'          => 30.00,
-            'counterpart_cbu' => $destino->cbu,
+            'counterpart_cvu' => $destino->cvu,
         ]);
 
         $this->assertDatabaseHas('movements', [
             'account_id'      => $destino->id,
             'type'            => 'transfer_in',
             'amount'          => 30.00,
-            'counterpart_cbu' => $origen->cbu,
+            'counterpart_cvu' => $origen->cvu,
         ]);
 
         $this->assertEquals(1, Movement::where('account_id', $origen->id)->count());
@@ -87,7 +87,7 @@ class TransferTest extends TestCase
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/v1/transfers', [
-                'destination_cbu' => $destino->cbu,
+                'destination_cvu' => $destino->cvu,
                 'amount'          => 50.00,
             ]);
 
@@ -98,14 +98,14 @@ class TransferTest extends TestCase
         $this->assertEquals(0, Movement::count());
     }
 
-    # UN CBU DE DESTINO INEXISTENTE DEVUELVE 422
-    public function test_cbu_destino_inexistente_devuelve_422(): void
+    # UN CVU DE DESTINO INEXISTENTE DEVUELVE 422
+    public function test_cvu_destino_inexistente_devuelve_422(): void
     {
         [, , $token] = $this->crearUsuarioConCuenta(100.00);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/v1/transfers', [
-                'destination_cbu' => '0000000000000000000000',
+                'destination_cvu' => '0000000000000000000000',
                 'amount'          => 10.00,
             ]);
 
@@ -113,14 +113,14 @@ class TransferTest extends TestCase
         $this->assertEquals(0, Movement::count());
     }
 
-    # NO SE PUEDE TRANSFERIR AL PROPIO CBU
+    # NO SE PUEDE TRANSFERIR AL PROPIO CVU
     public function test_no_permite_transferir_a_la_propia_cuenta(): void
     {
         [, $origen, $token] = $this->crearUsuarioConCuenta(100.00);
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/v1/transfers', [
-                'destination_cbu' => $origen->cbu,
+                'destination_cvu' => $origen->cvu,
                 'amount'          => 10.00,
             ]);
 
@@ -137,7 +137,7 @@ class TransferTest extends TestCase
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/v1/transfers', [
-                'destination_cbu' => $destino->cbu,
+                'destination_cvu' => $destino->cvu,
                 'amount'          => 0,
             ]);
 
@@ -151,7 +151,7 @@ class TransferTest extends TestCase
         [, $destino] = $this->crearUsuarioConCuenta(20.00);
 
         $response = $this->postJson('/api/v1/transfers', [
-            'destination_cbu' => $destino->cbu,
+            'destination_cvu' => $destino->cvu,
             'amount'          => 10.00,
         ]);
 
@@ -167,7 +167,7 @@ class TransferTest extends TestCase
 
         $response = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/v1/transfers', [
-                'destination_cbu' => $destino->cbu,
+                'destination_cvu' => $destino->cvu,
                 'amount'          => 30.00,
                 'account_id'      => $otraCuenta->id,
                 'user_id'         => 9999,

@@ -7,7 +7,7 @@ use OpenApi\Attributes as OA;
 #[OA\Info(
     version: '1.0.0',
     title: 'Wallet API',
-    description: "API de billetera virtual: usuarios, cuentas, depósitos, transferencias, CBU de terceros, movimientos, plazo fijo y administración.\n\n**Autenticación (Bearer JWT)**\n\n1. Ejecutá `POST /api/v1/auth/login` con email y contraseña.\n2. Copiá el valor de `data.access_token` de la respuesta.\n3. Presioná **Authorize**, pegá solo el token (sin escribir `Bearer`) y confirmá.\n4. Swagger envía `Authorization: Bearer <token>` en todas las rutas con candado.\n\nTodas las respuestas de error tienen el formato `{ \"success\": false, \"message\": \"...\" }`."
+    description: "API de billetera virtual: usuarios, cuentas, depósitos, transferencias, CVU de terceros, movimientos, plazo fijo y administración.\n\n**Autenticación (Bearer JWT)**\n\n1. Ejecutá `POST /api/v1/auth/login` con email y contraseña.\n2. Copiá el valor de `data.access_token` de la respuesta.\n3. Presioná **Authorize**, pegá solo el token (sin escribir `Bearer`) y confirmá.\n4. Swagger envía `Authorization: Bearer <token>` en todas las rutas con candado.\n\nTodas las respuestas de error tienen el formato `{ \"success\": false, \"message\": \"...\" }`."
 )]
 #[OA\SecurityScheme(
     securityScheme: 'bearerAuth',
@@ -92,9 +92,9 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Schema(
     schema: 'Account',
-    required: ['cbu', 'type', 'currency', 'balance'],
+    required: ['cvu', 'type', 'currency', 'balance'],
     properties: [
-        new OA\Property(property: 'cbu', type: 'string', description: 'CBU de 22 dígitos, único', example: '0000003100000000000001'),
+        new OA\Property(property: 'cvu', type: 'string', description: 'CVU de 22 dígitos, único', example: '0000003100000000000001'),
         new OA\Property(property: 'type', type: 'string', enum: ['savings', 'checking'], example: 'savings'),
         new OA\Property(property: 'currency', type: 'string', enum: ['ARS', 'USD'], example: 'ARS'),
         new OA\Property(property: 'balance', type: 'number', format: 'float', example: 1550.5),
@@ -103,12 +103,12 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Schema(
     schema: 'Movement',
-    required: ['type', 'amount', 'date', 'counterpart_cbu'],
+    required: ['type', 'amount', 'date', 'counterpart_cvu'],
     properties: [
         new OA\Property(property: 'type', type: 'string', enum: ['deposit', 'transfer_in', 'transfer_out'], example: 'deposit'),
         new OA\Property(property: 'amount', type: 'string', description: 'Monto con dos decimales', example: '150.00'),
         new OA\Property(property: 'date', type: 'string', format: 'date-time', example: '2026-09-22T17:09:35.000000Z'),
-        new OA\Property(property: 'counterpart_cbu', type: 'string', nullable: true, description: 'CBU de la contraparte; null en depósitos', example: '0000003100000000000002'),
+        new OA\Property(property: 'counterpart_cvu', type: 'string', nullable: true, description: 'CVU de la contraparte; null en depósitos', example: '0000003100000000000002'),
     ],
     type: 'object'
 )]
@@ -127,19 +127,19 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Schema(
     schema: 'AdminMovement',
-    required: ['id', 'type', 'amount', 'date', 'counterpart_cbu', 'account'],
+    required: ['id', 'type', 'amount', 'date', 'counterpart_cvu', 'account'],
     properties: [
         new OA\Property(property: 'id', type: 'integer', example: 12),
         new OA\Property(property: 'type', type: 'string', enum: ['deposit', 'transfer_in', 'transfer_out'], example: 'deposit'),
         new OA\Property(property: 'amount', type: 'string', description: 'Monto con dos decimales', example: '150.00'),
         new OA\Property(property: 'date', type: 'string', format: 'date-time', example: '2026-09-22T17:09:35.000000Z'),
-        new OA\Property(property: 'counterpart_cbu', type: 'string', nullable: true, example: null),
+        new OA\Property(property: 'counterpart_cvu', type: 'string', nullable: true, example: null),
         new OA\Property(
             property: 'account',
             type: 'object',
             properties: [
                 new OA\Property(property: 'id', type: 'integer', example: 1),
-                new OA\Property(property: 'cbu', type: 'string', example: '0000003100000000000001'),
+                new OA\Property(property: 'cvu', type: 'string', example: '0000003100000000000001'),
                 new OA\Property(property: 'type', type: 'string', enum: ['savings', 'checking'], example: 'savings'),
                 new OA\Property(property: 'currency', type: 'string', enum: ['ARS', 'USD'], example: 'ARS'),
                 new OA\Property(
@@ -158,10 +158,10 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Schema(
     schema: 'AdminAccount',
-    required: ['id', 'cbu', 'type', 'currency', 'balance', 'user'],
+    required: ['id', 'cvu', 'type', 'currency', 'balance', 'user'],
     properties: [
         new OA\Property(property: 'id', type: 'integer', example: 1),
-        new OA\Property(property: 'cbu', type: 'string', example: '0000003100000000000001'),
+        new OA\Property(property: 'cvu', type: 'string', example: '0000003100000000000001'),
         new OA\Property(property: 'type', type: 'string', enum: ['savings', 'checking'], example: 'savings'),
         new OA\Property(property: 'currency', type: 'string', enum: ['ARS', 'USD'], example: 'ARS'),
         new OA\Property(property: 'balance', type: 'number', format: 'float', example: 1550.5),
